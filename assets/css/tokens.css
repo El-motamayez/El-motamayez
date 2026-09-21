@@ -1,0 +1,216 @@
+/* ==========================================================================
+   Design tokens — المتميز في القدرات الكمي
+   Palette sampled directly from the brand artwork (the booklet cover and the
+   form banners in data/source/brand/):
+     navy   #0f2743   structure, text, depth, the one action colour
+     gold   #c89b48   accent only: numbers, completion, focus, the seal rim
+     paper  #f2f0e9   the cream the whole identity is printed on
+
+   Only two colours, so the roles have to be strict:
+   navy acts, gold marks, cream carries. Gold is never a text colour at its
+   brand value — #a8752a and darker are used where letters sit on paper.
+   ========================================================================== */
+
+:root {
+  /* ---- Brand ramps ------------------------------------------------------ */
+  --navy-900: #06111f;
+  --navy-800: #0a1c31;
+  --navy-700: #0f2743;
+  --navy-600: #143a63;
+  --navy-500: #27476e;
+
+  --gold-800: #6d4a14;
+  --gold-700: #8a5a1e;
+  --gold-600: #a8752a;
+  --gold-500: #c89b48;
+  --gold-400: #d9b165;
+  --gold-300: #e6c88d;
+  --gold-100: #f7efe0;
+
+  --paper-50: #fffdf8;
+  --paper-100: #fbf9f3;
+  --paper-200: #f2f0e9;
+  --paper-300: #eae7dd;
+  --paper-400: #ddd8cb;
+
+  /* ---- Semantic (light, default) --------------------------------------- */
+  --bg: var(--paper-200);
+  --bg-alt: var(--paper-100);
+  --surface: var(--paper-50);
+  --surface-2: var(--paper-100);
+  --surface-sunken: var(--paper-300);
+
+  --border: #e3dfd3;
+  --border-strong: #d0cabb;
+
+  --ink: var(--navy-700);
+  --ink-2: #4a5a72;
+  --ink-3: #5d6b80; /* >= 4.5:1 on --bg and --surface (WCAG AA body text) */
+  --ink-inverse: #ffffff;
+
+  --accent: var(--navy-600);
+  --accent-hover: var(--navy-700);
+  --accent-active: var(--navy-800);
+  --accent-soft: #e8eef6;
+  --accent-ink: #ffffff;
+
+  --gold: var(--gold-600);
+  --gold-soft: var(--gold-100);
+  --gold-ink: #7a5214; /* text on --gold-soft — 7.5:1 */
+
+  --focus: var(--gold-700);
+  --focus-halo: rgba(138, 90, 30, 0.2);
+
+  --shadow-1: 0 1px 2px rgba(15, 39, 67, 0.05);
+  --shadow-2: 0 2px 10px -3px rgba(15, 39, 67, 0.1), 0 1px 2px rgba(15, 39, 67, 0.04);
+  --shadow-3: 0 16px 40px -16px rgba(15, 39, 67, 0.22);
+  --shadow-sheet: 0 -12px 40px -12px rgba(15, 39, 67, 0.28);
+
+  --header-bg: rgba(255, 253, 248, 0.88);
+  /* The cover's own composition: gold sweeping in from the top corner, navy
+     weighting the bottom, cream between them. */
+  --hero-wash: radial-gradient(72% 90% at 100% 0%, rgba(200, 155, 72, 0.22), transparent 62%),
+    radial-gradient(60% 80% at 0% 100%, rgba(15, 39, 67, 0.08), transparent 65%),
+    linear-gradient(180deg, #fbf9f3, var(--paper-200));
+  --dots: rgba(15, 39, 67, 0.08);
+
+  /* Tinted call to action: navy text on a navy wash, filling on hover.
+     It repeats on every card, so it stays quiet until the pointer is on it. */
+  --accent-tint-ink: var(--navy-600);
+  --shadow-accent: 0 10px 20px -12px rgba(15, 39, 67, 0.65);
+
+  /* The one "strong" surface (resume tile): the brand's own coin — deep navy
+     carrying a gold mark — in both themes. */
+  --strong-bg: linear-gradient(135deg, #1b3b60, #0b1d33);
+  --strong-ink: #ffffff;
+  --strong-ink-2: rgba(255, 255, 255, 0.78);
+  --strong-icon-bg: rgba(217, 177, 101, 0.18);
+  --strong-icon: var(--gold-300);
+
+  /* The emblem is a navy coin with its own gold ring, so the rim behind it is
+     the paper it is printed on — not a white disc. */
+  --seal-rim: linear-gradient(150deg, #fffdf8 25%, #efe5d1);
+  --seal-line: rgba(168, 117, 42, 0.32);
+  --seal-shadow: 0 30px 60px -30px rgba(15, 39, 67, 0.45), 0 10px 22px -14px rgba(168, 117, 42, 0.3);
+  --highlight: rgba(200, 155, 72, 0.34);
+
+  /* WhatsApp: the one place a non-brand colour is used, because students
+     recognise the green instantly. #0f7a45 keeps white text at 5.4:1. */
+  --wa: #0f7a45;
+  --wa-hover: #0b6b3d;
+  --wa-icon: #0f7a45;
+
+  /* The navy stage behind the teacher's cut-out portrait (both themes). */
+  --stage: radial-gradient(120% 85% at 50% 18%, #1d4373 0%, #0f2743 55%, #06111f 100%);
+
+  /* ---- Typography ------------------------------------------------------- */
+  --font-sans: "IBM Plex Sans Arabic", "Segoe UI", "Noto Sans Arabic", system-ui, -apple-system,
+    "Helvetica Neue", Arial, sans-serif;
+
+  --fs-hero: clamp(2rem, 1.33rem + 2.75vw, 3.25rem); /* 32 → 52 */
+  --fs-display: clamp(1.75rem, 1.28rem + 2.05vw, 2.5rem); /* 28 → 40 */
+  --fs-2xl: clamp(1.3rem, 1.16rem + 0.6vw, 1.55rem); /* 21 → 25 */
+  --fs-xl: 1.1875rem; /* 19 */
+  --fs-lg: 1.0625rem; /* 17 */
+  --fs-md: 0.9375rem; /* 15 — body floor */
+  --fs-sm: 0.875rem; /* 14 */
+  --fs-xs: 0.8125rem; /* 13 — smallest permitted */
+
+  --lh-tight: 1.25;
+  --lh-snug: 1.45;
+  --lh-normal: 1.7;
+
+  /* ---- Space (4px base) -------------------------------------------------- */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.25rem;
+  --sp-6: 1.5rem;
+  --sp-8: 2rem;
+  --sp-10: 2.5rem;
+  --sp-12: 3rem;
+  --sp-16: 4rem;
+
+  /* ---- Radii ------------------------------------------------------------- */
+  --r-sm: 8px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --r-xl: 24px;
+  --r-full: 999px;
+
+  /* ---- Layout ------------------------------------------------------------ */
+  --container: 1200px;
+  --gutter: clamp(1rem, 0.55rem + 2.2vw, 2rem);
+  --header-h: 68px;
+
+  /* ---- Motion ------------------------------------------------------------ */
+  --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --dur-fast: 120ms;
+  --dur: 180ms;
+  --dur-slow: 260ms;
+
+  color-scheme: light;
+}
+
+/* ---- Dark theme ---------------------------------------------------------- */
+/* Light is the default for everyone. Dark is opt-in only, via the header
+   toggle, which stamps data-theme="dark" on <html>. The operating system's
+   preference is deliberately ignored.
+
+   Navy is the page here, so navy can no longer be the action colour: gold
+   takes the role and carries navy letters, which is the cover's own pairing
+   read the other way round. */
+
+:root[data-theme="dark"] {
+  --bg: #0b1a2c;
+  --bg-alt: #0e2038;
+  --surface: #12263e;
+  --surface-2: #17304d;
+  --surface-sunken: #0e2038;
+
+  --border: #23405f;
+  --border-strong: #315377;
+
+  --ink: #eef2f7;
+  --ink-2: #a9b6c9;
+  --ink-3: #8794a8;
+  --ink-inverse: #0b1a2c;
+
+  --accent: #d5a959;
+  --accent-hover: #e3ba70;
+  --accent-active: #c3974a;
+  --accent-soft: rgba(213, 169, 89, 0.16);
+  --accent-ink: #0b1a2c;
+
+  --gold: #e0b878;
+  --gold-soft: rgba(224, 184, 120, 0.15);
+  --gold-ink: #ecc994;
+
+  --focus: #e6c88d;
+  --focus-halo: rgba(230, 200, 141, 0.24);
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 2px 10px -3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-3: 0 16px 40px -16px rgba(0, 0, 0, 0.7);
+  --shadow-sheet: 0 -12px 40px -12px rgba(0, 0, 0, 0.65);
+
+  --header-bg: rgba(11, 26, 44, 0.88);
+  --hero-wash: radial-gradient(72% 90% at 100% 0%, rgba(224, 184, 120, 0.14), transparent 62%),
+    radial-gradient(60% 80% at 0% 100%, rgba(31, 74, 122, 0.3), transparent 65%),
+    linear-gradient(180deg, #0e2038, var(--bg));
+  --dots: rgba(238, 242, 247, 0.06);
+
+  --accent-tint-ink: #e8c489;
+  --shadow-accent: 0 10px 20px -12px rgba(0, 0, 0, 0.7);
+
+  --strong-bg: linear-gradient(135deg, #1f4a7a, #10294a);
+
+  --seal-rim: linear-gradient(150deg, #2a4a72, #16304d);
+  --seal-line: rgba(224, 184, 120, 0.38);
+  --seal-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(224, 184, 120, 0.14);
+  --highlight: rgba(224, 184, 120, 0.26);
+  --wa-icon: #25d366;
+
+  color-scheme: dark;
+}

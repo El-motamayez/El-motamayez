@@ -1,0 +1,354 @@
+{
+ "المشروع": "المتميز في القدرات الكمي — الجزء الثاني ( التجميعات )",
+ "المعلّم": "الأستاذ / محمد أسامه — مدرب القدرات الكمي",
+ "الجوال": "0567173752",
+ "عدد الفورمات": 42,
+ "إجمالي الأسئلة": 1984,
+ "كلمة المرور": "2030",
+ "الصفحة الأولى": [
+  "أدخل كلمة المرور",
+  "اسم الطالب",
+  "رقم الجوال"
+ ],
+ "بنية السؤال": "صورة (السؤال + اختياراته) ثم اختيار من متعدد: أ / ب / ج / د — درجة واحدة وإجباري",
+ "نهاية الفورم": "بانر «انتهت الأسئلة» + خانة إجابة طويلة اختيارية",
+ "وضع الاختبار": true,
+ "الفورمات": [
+  {
+   "الإصدار": 1,
+   "الاسم": "الإصدار الأول — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/5xhaNhNoNNYhTZMe8",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSeZwZSImJ2KtLLWAwO1uuXxBrPHmpPOSnU5CyyIarUfS7VQUQ/viewform"
+  },
+  {
+   "الإصدار": 2,
+   "الاسم": "الإصدار الثاني — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/JKUAcjr5ZzngYsky6",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSe5TRAK5rr_f6-BK233AzhDBo_wk7qZexlEWDj3ClBQBAZvVA/viewform"
+  },
+  {
+   "الإصدار": 3,
+   "الاسم": "الإصدار الثالث — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/ruGJMgWn3kG3HJGM9",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLScgpR1fcAkGqZXVtW-ijMN2yQmT5DDFoNjih2lWVLo127127Q/viewform"
+  },
+  {
+   "الإصدار": 4,
+   "الاسم": "الإصدار الرابع — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/2XbGTTKDMSM4huK46",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSdirs0bNniLeF3qQ2e8IAvf0w745muUgBVD9QgRqs3_j7NEMg/viewform"
+  },
+  {
+   "الإصدار": 5,
+   "الاسم": "الإصدار الخامس — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/wrki6iAnv3MWXgjx7",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSci1_k_fSdW-hTK3O3XEb2AkTVBrIzs1Oj6vNuhOQTFdSDcdg/viewform"
+  },
+  {
+   "الإصدار": 6,
+   "الاسم": "الإصدار السادس — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/XRtM5TEwjziiz49p7",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSfQzBe9lK6rssXKAddD2i9WG3rZGT_HKXOPvq6RQs9vTRqD-Q/viewform"
+  },
+  {
+   "الإصدار": 7,
+   "الاسم": "الإصدار السابع — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/2cUjKyVEUxor4iku7",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSfUSHhtHGLE9pgmgKcqd3tWZ1UpdOIdOgN-rf8MBK3QYZY-qw/viewform"
+  },
+  {
+   "الإصدار": 8,
+   "الاسم": "الإصدار الثامن — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/wG1f4W2Vy4ALE78K7",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSfoUSLUHHMxdwdPp06XGRoTnby3_TDwpD2NM_hVBJOwoDfFhw/viewform"
+  },
+  {
+   "الإصدار": 9,
+   "الاسم": "الإصدار التاسع — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/L4vPGG5vLrTc5uR56",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSdclcB8oyChxfwbWhkx9vTZkAE-SXlPLkZzvvZqIU6CkvJeVg/viewform"
+  },
+  {
+   "الإصدار": 10,
+   "الاسم": "الإصدار العاشر — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/hZkCEK2y6Kpzbfkr7",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSe4g61cH-M-QBXUMSKSOK9Katkn9tLGb5c-J4J0GvbPXs5_-w/viewform"
+  },
+  {
+   "الإصدار": 11,
+   "الاسم": "الإصدار الحادي عشر — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/6TVaLoQjkeSMthpF9",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSelIKBc4Lt1KCP7FhFuldfLc1RK-9lU2HWtKDfsEiOXvPjPpg/viewform"
+  },
+  {
+   "الإصدار": 12,
+   "الاسم": "الإصدار الثاني عشر — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/zitYsqtrWv5mXU1D6",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSegsl_oVJ9UxlB7Rq6UCqLEhOMWwXNk-5TSw19cQwB2Ucne-A/viewform"
+  },
+  {
+   "الإصدار": 13,
+   "الاسم": "الإصدار الثالث عشر — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/ks7NPNdBayrLtqVe8",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSd3Mz5mJlV5PjGoOpPNNTCDigW8z_HUojSSLXWGYPaTAm9Xbg/viewform"
+  },
+  {
+   "الإصدار": 14,
+   "الاسم": "الإصدار الرابع عشر — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/yoU7ekWggvAxDCV4A",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSdz0-4RuoX2gyPP3NUT4Oh5oWbkg95fIR5RLEg9Jd75BDEEWQ/viewform"
+  },
+  {
+   "الإصدار": 15,
+   "الاسم": "الإصدار الخامس عشر — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/kJLzYeGyYjdMKHtn7",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLScIwsZrNhfmY_wTdaPNngbnqTENq_-JeflbSgIAU0gKCmKx_w/viewform"
+  },
+  {
+   "الإصدار": 16,
+   "الاسم": "الإصدار السادس عشر — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/KYYPcSX4VYSXPTwb9",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLScLWoEyimbC8CUr9cWerdUdKyp2Gk621LPyYK6OQLRflhxxOg/viewform"
+  },
+  {
+   "الإصدار": 17,
+   "الاسم": "الإصدار السابع عشر — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/TY31Ke8ehbRZPdoZ8",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSd9AbYsBdzAfo8ZsvupVe70JdbzCBpFCYINxpQbCLzkgtDm_Q/viewform"
+  },
+  {
+   "الإصدار": 18,
+   "الاسم": "الإصدار الثامن عشر — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/M47v65fJ7AjkKMkLA",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSflDuGGaxDWP8alJbaA99f5SaWn-wa1cE_beAHWWl-TZnuqUg/viewform"
+  },
+  {
+   "الإصدار": 19,
+   "الاسم": "الإصدار التاسع عشر — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/XHTX9xtinY9sa33K8",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSfByPP9ZgXdQCSvgEE-EQaemUdcIi4nzxPwYnn3ni-q36MhuQ/viewform"
+  },
+  {
+   "الإصدار": 20,
+   "الاسم": "الإصدار العشرون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/ZiHJ1nDU19BwfrhG7",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLScW31oi3BHk6he3JR00vLV-bD_R4ko_WzTOn2_0PvaTrrlr2w/viewform"
+  },
+  {
+   "الإصدار": 21,
+   "الاسم": "الإصدار الحادي والعشرون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/nRxhLHQNP1s1NpeZ6",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSfzdrwD_L8q1Y8khQHvxvy3KRQTa37Poihz957tQw7zaBqdiQ/viewform"
+  },
+  {
+   "الإصدار": 22,
+   "الاسم": "الإصدار الثاني والعشرون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/E9r5i9CNvLARYd1M9",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSdErZxjp3uGetBO3eZkZNIJ2wgA_z8TtggFo0rVjKA24OP1tQ/viewform"
+  },
+  {
+   "الإصدار": 23,
+   "الاسم": "الإصدار الثالث والعشرون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/fDizNoyb2XFRfgiS6",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSeFoZk3POQj_YqIoG29efMvISedL-0kPP907QGJ2RNUVGCDeQ/viewform"
+  },
+  {
+   "الإصدار": 24,
+   "الاسم": "الإصدار الرابع والعشرون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/y6EyJwBkU6qFzB1U7",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSeRZ-eGS7F6EwX2rfpWyk7MK7qe4s6-aH4qULRr6Cakq8MZSQ/viewform"
+  },
+  {
+   "الإصدار": 25,
+   "الاسم": "الإصدار الخامس والعشرون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/BrqMwF8VDB4KH7TQA",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLScN6-NP0GCTiE1x8x74xSjbGeuIM7be2GnIxpMqFvzHyKienw/viewform"
+  },
+  {
+   "الإصدار": 26,
+   "الاسم": "الإصدار السادس والعشرون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/ug7eZh32Xf8Nzv7v7",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSdMdei16Qod-IiaKOANPNLY-NQvI0zxLCtGtE_jGH_G05maGA/viewform"
+  },
+  {
+   "الإصدار": 27,
+   "الاسم": "الإصدار السابع والعشرون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/QKnexBTnEp4tVa2f7",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLScofNpYS6rfWkxY4bM8lhvDPS3cdBTFZCaA5Gg4Ksz5xMUcUA/viewform"
+  },
+  {
+   "الإصدار": 28,
+   "الاسم": "الإصدار الثامن والعشرون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/Qpw51SN7QbEhCY99A",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSd7ltefB0vSwnUM2Ks5hqIMl3x6CfHoyoZ6Axk4X6Mfna-BVQ/viewform"
+  },
+  {
+   "الإصدار": 29,
+   "الاسم": "الإصدار التاسع والعشرون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/KhWJHNGocdozXHro7",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSciCQouP8X8vsEHtyKI1BMJ6h1i3uSvR-JRlIoVetTvjIcA6Q/viewform"
+  },
+  {
+   "الإصدار": 30,
+   "الاسم": "الإصدار الثلاثون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/MH9uiJo5BAzhAjtD9",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSdZHDZWTSm8xifLU_lMgrtKPBU3o06QJkDJxanDseKDyk469w/viewform"
+  },
+  {
+   "الإصدار": 31,
+   "الاسم": "الإصدار الحادي والثلاثون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/TvBJmFDyaGfzKerF7",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSejpGviyaumCapRVatcjANpy_Czo3ckxefoH8uFGN8ghSP0Jg/viewform"
+  },
+  {
+   "الإصدار": 32,
+   "الاسم": "الإصدار الثاني والثلاثون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/cun3ads43buudywc7",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSdyO9SrB9ayqQ88ayOKWaYO05qOI9j0Lshhw9CXjZ6BMkA1vw/viewform"
+  },
+  {
+   "الإصدار": 33,
+   "الاسم": "الإصدار الثالث والثلاثون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/pXuHez51akvnbRYa7",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSdUTDQYYccitqpjkm4m3HCz5Jft5vOvZyNTI0j4xa9PALhULQ/viewform"
+  },
+  {
+   "الإصدار": 34,
+   "الاسم": "الإصدار الرابع والثلاثون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/8Znezk5rWmzbGWVRA",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSfgCg4aJYDnYwInlQ4s66zuMsxxvl9ifedZuKx1tpZL5igk0w/viewform"
+  },
+  {
+   "الإصدار": 35,
+   "الاسم": "الإصدار الخامس والثلاثون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/mcCYcTa72rUvaZBv7",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLScUiJxZjFvhky54ieZ1W6k3BsOr6o_qgfHro7Th7PqyzVvZCQ/viewform"
+  },
+  {
+   "الإصدار": 36,
+   "الاسم": "الإصدار السادس والثلاثون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/YY8U2gg4TjkbmzBJ8",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSeK12LcD4LxdhNeQt-NC2kzVuEUuAiWStUuB-N1gMRimHyHVg/viewform"
+  },
+  {
+   "الإصدار": 37,
+   "الاسم": "الإصدار السابع والثلاثون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/w55RGtaosbndCVpZ6",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLScLcS6dGVu9EOLdnCIxNCxGubPw-I4b6xtZ_dxQisJn0JjDvQ/viewform"
+  },
+  {
+   "الإصدار": 38,
+   "الاسم": "الإصدار الثامن والثلاثون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 47,
+   "الدرجة": 47,
+   "الرابط المختصر": "https://forms.gle/kFEEPAZCok6QgEqY9",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSeQW2X_6EBn94PSNZryLUldagrVLRenAADO63IhIB193yB_kQ/viewform"
+  },
+  {
+   "الإصدار": 39,
+   "الاسم": "الإصدار التاسع والثلاثون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/7xwrz4hiP2AYbmFb6",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLScSL2vnVmF3DRT4oXJoE9v8Id5pJ-WOFap41XnEJcfxuStuEA/viewform"
+  },
+  {
+   "الإصدار": 40,
+   "الاسم": "الإصدار الأربعون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/DiLzRxyMywKrXnBk9",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLScCkRUS0D8MA5G9R79RHstsfkRrFSR9LmIbniPHwiNoH33DDg/viewform"
+  },
+  {
+   "الإصدار": 41,
+   "الاسم": "الإصدار الحادي والأربعون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 48,
+   "الدرجة": 48,
+   "الرابط المختصر": "https://forms.gle/oQHzkBfkooyuqeSa6",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSfJX-sLzpWztcuKZKnt6nPgLWRlTDegv2dZkatfP4U4cgCVRQ/viewform"
+  },
+  {
+   "الإصدار": 42,
+   "الاسم": "الإصدار الثاني والأربعون — المتميز في القدرات الكمي",
+   "عدد الأسئلة": 17,
+   "الدرجة": 17,
+   "الرابط المختصر": "https://forms.gle/rA8Qahhk2q5KK9hG8",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSdfJ1ei09my0RiejrPZoDLt-PGP0fK8IRnOuEYrfGfrLDxazw/viewform"
+  }
+ ]
+}

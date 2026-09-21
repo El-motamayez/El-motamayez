@@ -1,0 +1,32 @@
+{
+  "name": "المتميز في القدرات الكمي — الأستاذ محمد أسامه",
+  "short_name": "المتميز الكمي",
+  "description": "إصدارات تجميعات القدرات الكمي من إعداد الأستاذ محمد أسامه حرحيره، مدرب القدرات الكمي — اختر الإصدار وابدأ الاختبار مباشرة.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2f0e9",
+  "theme_color": "#fffdf8",
+  "icons": [
+    {
+      "src": "assets/img/logo-256.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/img/maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "assets/img/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
