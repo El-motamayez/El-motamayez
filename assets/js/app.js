@@ -1,5 +1,5 @@
 /**
- * العراب في القدرات — exam portal
+ * المتميز في القدرات الكمي — exam portal
  *
  * Static, data-driven, no framework. State lives in one object, is mirrored to
  * the URL (so any view is shareable and the back button works), and drives a

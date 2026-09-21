@@ -2933,7 +2933,7 @@ a.tile:not([href]) {
    Teacher-first layout: byline, photo in the home section, profile header
    -------------------------------------------------------------------------- */
 
-/* "إعداد الأستاذ أحمد طلعت" under the home headline. */
+/* "إعداد الأستاذ محمد أسامه حرحيره" under the home headline. */
 .hero__byline {
   display: flex;
   align-items: center;
