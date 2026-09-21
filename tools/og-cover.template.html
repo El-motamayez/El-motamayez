@@ -142,8 +142,10 @@
       .badge {
         position: absolute;
         z-index: 1;
-        inset-block-end: 26px;
-        inset-inline-end: -8px;
+        /* Top corner, not the bottom one: the name pill is centred under the
+           seal and the two would otherwise sit on top of each other. */
+        inset-block-start: 14px;
+        inset-inline-end: -10px;
         width: 92px;
         height: 92px;
         border-radius: 50%;

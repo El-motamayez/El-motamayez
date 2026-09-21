@@ -390,7 +390,9 @@
 }
 
 :root[data-theme="dark"] .hero__title em {
-  color: #f0a7af;
+  /* The accent gold is the action colour here; display type takes the paler
+     tint so it still separates from the gold wash behind it. */
+  color: var(--gold-ink);
 }
 
 .hero__lead {
