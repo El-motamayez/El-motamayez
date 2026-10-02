@@ -1,14 +1,14 @@
 {
-  "sourceFile": "data/source/روابط المتميز في القدرات الكمي 1-40.json",
-  "sourceRecords": 40,
-  "published": 40,
+  "sourceFile": "data/source/روابط المتميز في القدرات الكمي 1-48.json",
+  "sourceRecords": 48,
+  "published": 48,
   "excluded": 0,
   "issues": [],
   "questions": {
-    "total": 1919,
+    "total": 2303,
     "perForm": null,
     "typical": 48,
-    "counted": 40
+    "counted": 48
   },
   "priority": {
     "label": "ابدأ بهذه",
@@ -16,7 +16,7 @@
     "flagged": 0,
     "unknown": []
   },
-  "outputBytes": 9234,
+  "outputBytes": 11200,
   "ranges": [
     {
       "from": 1,
@@ -37,6 +37,11 @@
       "from": 31,
       "to": 40,
       "count": 10
+    },
+    {
+      "from": 41,
+      "to": 48,
+      "count": 8
     }
   ]
 }

@@ -67,7 +67,7 @@ tools/
 
 ### Why no framework
 
-The site is one screen over 40 records. Vanilla ES modules ship about **13 KB of
+The site is one screen over 48 records. Vanilla ES modules ship about **13 KB of
 JavaScript**; React + a bundler would have cost roughly ten times that, plus a build
 step that can break a deployment. Everything is loaded as plain static files with
 **relative** paths, so the site works identically at
@@ -97,7 +97,7 @@ that no hand-editing step sits between his sheet and the site:
 ```json
 {
   "المشروع": "…", "المعلّم": "…", "الجوال": "…",
-  "عدد الفورمات": 40, "إجمالي الأسئلة": 1919, "كلمة المرور": "…",
+  "عدد الفورمات": 48, "إجمالي الأسئلة": 2303, "كلمة المرور": "…",
   "الفورمات": [{ "الإصدار": 1, "الاسم": "الإصدار الأول — المتميز في القدرات الكمي",
                  "عدد الأسئلة": 48, "الدرجة": 48,
                  "الرابط المختصر": "https://forms.gle/…",
@@ -113,7 +113,7 @@ same key.
 Three things the build derives rather than trusts:
 
 - **The title on the card** drops the trailing brand — «الإصدار الحادي عشر», not
-  «الإصدار الحادي عشر — المتميز في القدرات الكمي». Repeating the brand 40 times inside
+  «الإصدار الحادي عشر — المتميز في القدرات الكمي». Repeating the brand 48 times inside
   its own grid is noise, and the header already says it.
 - **The question count travels per record** (`q`), because the versions are not all the
   same length: 48 for every version except الثامن والثلاثون, which has 47. The card
@@ -166,7 +166,7 @@ hides itself rather than showing an empty promise.
 ### Checking that the forms are still live
 
 ```bash
-npm run check:links              # probes all 40 URLs (hits Google)
+npm run check:links              # probes all 48 URLs (hits Google)
 npm run check:links -- --limit 25
 ```
 
@@ -248,7 +248,7 @@ The identity has only two colours, so the roles have to be strict: **navy acts, 
 marks, cream carries.** Rules the implementation follows:
 
 - **Navy is the only action colour in the light theme.** On the version cards, where
-  «ابدأ الاختبار» repeats 40 times, the button is a navy *tint* that fills solid on
+  «ابدأ الاختبار» repeats 48 times, the button is a navy *tint* that fills solid on
   hover, so the grid stays calm.
 - **In the dark theme navy becomes the page, so gold takes the action role** and carries
   navy letters — the cover's own pairing, read the other way round.
@@ -303,12 +303,12 @@ is seen. The round checkbox on each card toggles the mark by hand at any time.
 
 **The range chips follow the size of the export.** `build-data.mjs` picks the step from
 the highest number — 10 below 60 records, 20 below 150, 50 above — so the quick-jump row
-stays four or five chips whether the export holds 40 rows or 400. A short trailing batch
+stays four or five chips whether the export holds 48 rows or 400. A short trailing batch
 is folded into the one before it, so an export ending at 42 would read `1–10 · 11–20 ·
 21–30 · 31–42` rather than trailing a lonely `41–42` chip.
 
 **Rendering is incremental.** 48 cards per batch, extended by an IntersectionObserver
-with an explicit «عرض المزيد» button as the accessible fallback. At 40 records that
+with an explicit «عرض المزيد» button as the accessible fallback. At 48 records that
 never triggers, and it costs nothing to leave in place for a larger export.
 
 **Links are validated twice** — once at build time, once again before a card is
@@ -321,7 +321,7 @@ All external links carry `rel="noopener noreferrer"`.
 
 The site is built around **the teacher, not the platform**: the goal is that
 «الأستاذ محمد أسامه حرحيره — مدرب القدرات الكمي» is the entity Google and the AI
-assistants (ChatGPT, Gemini, Claude, Copilot, Perplexity) recognise, and that the 40
+assistants (ChatGPT, Gemini, Claude, Copilot, Perplexity) recognise, and that the 48
 versions read as *his* resource.
 
 **Name collision — read this first.** «محمد أسامه» is a very common Arabic name, so the
@@ -348,8 +348,11 @@ for are «تجميعات الكمي» and «قدرات كمي محمد أسام�
 
 **Two Arabic points worth keeping straight**
 
-40 falls in the 11–99 band, so its تمييز is the accusative singular: «40 إصدارًا», never
-«40 إصدارات». 1919 ends in 19, so it lands in the same band — «1919 سؤالًا». `unitNoun()` in `tools/build-data.mjs` and `countPhrase()` in
+48 falls in the 11–99 band, so its تمييز is the accusative singular: «48 إصدارًا», never
+«48 إصدارات». 2303 is the other case: its last two digits fall in the 3–10 band, so it
+takes the broken plural — «2303 أسئلة», not «2303 سؤالًا». Changing the export can move a
+figure from one band to the other, so hand-written copy has to be re-read after a
+data update, not just re-numbered. `unitNoun()` in `tools/build-data.mjs` and `countPhrase()` in
 `assets/js/app.js` get both right from `Intl.PluralRules('ar')`, so generated text
 should use them rather than a hard-coded word.
 
@@ -413,6 +416,13 @@ Google Form asks for. **It is deliberately not displayed anywhere on this site**
 site is public, and publishing the code here would remove the only gate on the forms.
 `about.html` tells students to get it from the teacher instead, and `tools/test-seo.mjs`
 fails the build if the code ever appears in a page or in `llms.txt`.
+
+**Edit links never enter this repository.** The teacher's exports sometimes carry a
+`رابط التعديل` per row — a `docs.google.com/forms/d/<id>/edit` URL, which hands write
+access to the live form to anyone who opens it. The repository is public and
+`data/source/` is published with everything else, so those are stripped before the
+export is saved. Two guards keep it that way: `build-data.mjs` **exits 1** if the
+export contains one, and `test-seo.mjs` fails if one reaches any published file.
 
 That password is also the reason nothing on the site calls the versions **free**. They
 are the teacher's own material, published for his own students; `isAccessibleForFree`

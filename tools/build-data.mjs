@@ -458,9 +458,28 @@ function findSourceFile() {
   return candidates.sort((a, b) => fs.statSync(b).size - fs.statSync(a).size)[0];
 }
 
+/**
+ * A Google Forms *edit* URL hands write access to the live form to anyone who
+ * opens it. The teacher's exports sometimes carry one per row («رابط التعديل»),
+ * and this repository is public and published whole, so the build refuses to
+ * run rather than copy one into the site. Keep those links out of the export.
+ */
+function assertNoEditLinks(sourceFile, text) {
+  const found = text.match(/https:\/\/docs\.google\.com\/forms\/d\/[A-Za-z0-9_-]+\/edit/g);
+  if (!found) return;
+  console.error(
+    `FAILED: ${path.relative(ROOT, sourceFile)} contains ${found.length} Google Forms edit link(s).\n` +
+      '        Those grant write access to the live forms and this repository is public.\n' +
+      '        Remove every "رابط التعديل" from the export and re-run.',
+  );
+  process.exit(1);
+}
+
 function main() {
   const sourceFile = findSourceFile();
-  const raw = JSON.parse(fs.readFileSync(sourceFile, 'utf8'));
+  const sourceText = fs.readFileSync(sourceFile, 'utf8');
+  assertNoEditLinks(sourceFile, sourceText);
+  const raw = JSON.parse(sourceText);
   const priority = readPriority();
 
   const project = pick(raw, 'المشروع', 'project') ?? null;

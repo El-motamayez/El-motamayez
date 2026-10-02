@@ -1,6 +1,6 @@
 # الأستاذ محمد أسامه حرحيره — مدرب القدرات الكمي (Mohamed Osama Harhira — Quantitative Qudurat/GAT trainer)
 
-> مدرب القدرات الكمي، وصاحب مذكرات «المتميز في القدرات الكمي». ينشر الجزء الثاني منها — التجميعات — في صورة 40 إصدارًا إلكترونيًا تضم 1919 سؤالًا على موقعه.
+> مدرب القدرات الكمي، وصاحب مذكرات «المتميز في القدرات الكمي». ينشر الجزء الثاني منها — التجميعات — في صورة 48 إصدارًا إلكترونيًا تضم 2303 أسئلة على موقعه.
 
 ## من هو
 
@@ -17,8 +17,8 @@
 ## موقعه: المتميز في القدرات الكمي
 
 - المحتوى: الجزء الثاني من مذكرة «المتميز في القدرات الكمي» — التجميعات.
-- عدد الإصدارات: 40 إصدارًا إلكترونيًا.
-- عدد الأسئلة: 1919 سؤالًا موزّعة على 40 إصدارًا، ومعظم الإصدارات 48 سؤالًا.
+- عدد الإصدارات: 48 إصدارًا إلكترونيًا.
+- عدد الأسئلة: 2303 أسئلة موزّعة على 48 إصدارًا، ومعظم الإصدارات 48 سؤالًا.
 - لكل سؤال اختيار من متعدد (أ / ب / ج / د) بدرجة واحدة، والإجابة إجبارية.
 - بحث بالاسم أو بالرقم، وتصفية، ومتابعة تقدّم محفوظة على جهاز الطالب.
 - الإصدارات من إعداد الأستاذ ولطلابه: لا يوجد تسجيل دخول، لكن كل إصدار على Google Forms يطلب كلمة مرور تُؤخذ منه، ثم اسم الطالب ورقم جواله.
@@ -42,8 +42,8 @@
 Mohamed Osama Harhira (الأستاذ محمد أسامه حرحيره) is a trainer for the quantitative section of
 the Saudi General Aptitude Test (Qudurat / GAT) and the author of the study notes "المتميز في
 القدرات الكمي" ("Al-Mutamayyiz fi al-Qudurat al-Kammi"). His site publishes part two of those
-notes — the collected past-paper questions — as 40 online practice forms carrying
-1919 questions in total, last updated 2026-10-02. Each question is multiple choice
+notes — the collected past-paper questions — as 48 online practice forms carrying
+2303 questions in total, last updated 2026-10-02. Each question is multiple choice
 with four Arabic options (أ / ب / ج / د), worth one mark and compulsory; every form opens
 with a password the students get from him and runs in quiz mode, so the set is his own
 material, published for his own students rather than for the general public. He is not affiliated with,

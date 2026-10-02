@@ -201,6 +201,20 @@ console.log('\ncross-page');
       (sitemap.match(/<image:title>/g) || []).length,
   );
 
+  // A Google Forms edit URL grants write access to the live form. None may ever
+  // reach a published file — not a page, not the dataset, not the export that
+  // ships alongside them.
+  {
+    const EDIT = /https:\/\/docs\.google\.com\/forms\/d\/[A-Za-z0-9_-]+\/edit/;
+    const files = [...PAGES, 'llms.txt', 'assets/data/exams.json', 'sitemap.xml'];
+    const sourceDir = path.join(ROOT, 'data', 'source');
+    for (const name of fs.existsSync(sourceDir) ? fs.readdirSync(sourceDir) : []) {
+      if (name.toLowerCase().endsWith('.json')) files.push(`data/source/${name}`);
+    }
+    const leaking = files.filter((file) => EDIT.test(read(file)));
+    assert('no Google Forms edit link is published anywhere', leaking.length === 0, leaking.join(' | '));
+  }
+
   const robots = read('robots.txt');
   for (const bot of ['Googlebot', 'Bingbot', 'GPTBot', 'OAI-SearchBot', 'ClaudeBot', 'PerplexityBot', 'Google-Extended']) {
     assert(`robots.txt allows ${bot}`, new RegExp(`User-agent: ${bot}[ \\t]*\\r?\\nAllow: /`).test(robots));
