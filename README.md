@@ -322,7 +322,7 @@ All external links carry `rel="noopener noreferrer"`.
 The site is built around **the teacher, not the platform**: the goal is that
 «الأستاذ محمد أسامه حرحيره — مدرب القدرات الكمي» is the entity Google and the AI
 assistants (ChatGPT, Gemini, Claude, Copilot, Perplexity) recognise, and that the 40
-free versions read as *his* resource.
+versions read as *his* resource.
 
 **Name collision — read this first.** «محمد أسامه» is a very common Arabic name, so the
 family name does the disambiguating work: every title, H1, JSON-LD `name` and the first
@@ -377,8 +377,9 @@ no testimonials).
   because eroding the silhouette far enough to lose it would eat the hair;
 - the circle is composited on the brand's own cream vignette, with a JPEG twin carrying
   a gold ring for search results and link previews that expect a square;
-- the same cut-out is framed in the navy arch, with the edge colours decontaminated so
-  none of the hall's light shows against the dark stage.
+- the arch keeps the photograph exactly as it was taken, background and all. The frame
+  covers it edge to edge, so the navy stage behind it never shows; it is the tight
+  circle that needed the cut-out, not this.
 
 Run it only when an original changes — the outputs are committed. `assets/img/og-cover.jpg`
 is made separately, by screenshotting `tools/og-cover.template.html` at 1200 × 630.
@@ -412,6 +413,11 @@ Google Form asks for. **It is deliberately not displayed anywhere on this site**
 site is public, and publishing the code here would remove the only gate on the forms.
 `about.html` tells students to get it from the teacher instead, and `tools/test-seo.mjs`
 fails the build if the code ever appears in a page or in `llms.txt`.
+
+That password is also the reason nothing on the site calls the versions **free**. They
+are the teacher's own material, published for his own students; `isAccessibleForFree`
+is `false`, every page says who they are for rather than what they cost, and the same
+forbidden-pattern list fails the build on «مجان» or a bare "free".
 
 If you would rather show it, that is a two-line change — add it to the hero or the about
 page and drop the guard from the forbidden list in `test-seo.mjs`. It is intentionally
