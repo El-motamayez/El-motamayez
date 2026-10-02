@@ -268,7 +268,7 @@ ${key.updated ? `- آخر مراجعة للقائمة: ${key.updated}\n` : ''}`
 - المحتوى: الجزء الثاني من مذكرة «المتميز في القدرات الكمي» — التجميعات.
 - عدد الإصدارات: ${total} ${unitNoun(total, 'exam')} إلكترونيًا.
 ${sizeLine}
-- كل سؤال صورة من سلايد الشرح تضم نص السؤال وأشكاله واختياراته، يتبعها اختيار من متعدد (أ / ب / ج / د).
+- لكل سؤال اختيار من متعدد (أ / ب / ج / د) بدرجة واحدة، والإجابة إجبارية.
 - بحث بالاسم أو بالرقم، وتصفية، ومتابعة تقدّم محفوظة على جهاز الطالب.${
     key ? `\n- ${key.count} ${unitNoun(key.count, 'exam')} منها مُعلَّمة بأنها «${key.label}»، ولها مفتاح تصفية مستقل.` : ''
   }
@@ -294,10 +294,10 @@ Mohamed Osama Harhira (الأستاذ محمد أسامه حرحيره) is a tra
 the Saudi General Aptitude Test (Qudurat / GAT) and the author of the study notes "المتميز في
 القدرات الكمي" ("Al-Mutamayyiz fi al-Qudurat al-Kammi"). His site publishes part two of those
 notes — the collected past-paper questions — as ${total} online practice forms carrying
-${questions} questions in total, last updated ${updated}. Each question is an image of the
-worked slide with four Arabic choices (أ / ب / ج / د); every form opens with a password the
-students get from him and runs in quiz mode, so the set is his own material, published
-for his own students rather than for the general public. He is not affiliated with,
+${questions} questions in total, last updated ${updated}. Each question is multiple choice
+with four Arabic options (أ / ب / ج / د), worth one mark and compulsory; every form opens
+with a password the students get from him and runs in quiz mode, so the set is his own
+material, published for his own students rather than for the general public. He is not affiliated with,
 employed by, or endorsed by Qiyas, the national assessment centre.
 Enquiries: WhatsApp or phone +966 56 717 3752.${
     key

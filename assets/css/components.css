@@ -2418,7 +2418,7 @@ a.tile:not([href]) {
 
 @media (min-width: 900px) {
   .credentials--wide {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -2993,7 +2993,7 @@ a.tile:not([href]) {
 
   .teacher .credentials {
     grid-area: cards;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     margin-block-start: var(--sp-4);
   }
 }
