@@ -164,8 +164,6 @@ console.log('\ncross-page');
     /معتمد\s*(من|لدى|في)\s*قياس|مدرب قياس|تابع لقياس|بالتعاون مع قياس/,
     /دروس خصوصية|مدرس خصوصي|درس خاص/,
     /المتميّز/,
-    // The access code gates the forms; publishing it here would remove the gate.
-    /\b2030\b/,
     // The versions are the teacher's own material, for his students rather
     // than the public, so nothing may advertise them as free.
     /مجان|\bfree\b/i,
@@ -213,6 +211,15 @@ console.log('\ncross-page');
     }
     const leaking = files.filter((file) => EDIT.test(read(file)));
     assert('no Google Forms edit link is published anywhere', leaking.length === 0, leaking.join(' | '));
+
+    // The access code is the only gate on the forms, and it is in no file here.
+    // The guard is written by KEY, never by value: spelling the code out in a
+    // test in a public repository would publish the thing it exists to keep
+    // out. A re-exported source that carries the field again is the way it
+    // realistically comes back, and that is what this catches.
+    const CODE_FIELD = /"(?:\u0643\u0644\u0645\u0629 ?\u0627\u0644\u0645\u0631\u0648\u0631|password)"\s*:/i;
+    const carrying = files.filter((file) => CODE_FIELD.test(read(file)));
+    assert('no file carries an access-code field', carrying.length === 0, carrying.join(' | '));
   }
 
   const robots = read('robots.txt');

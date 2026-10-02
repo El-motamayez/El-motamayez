@@ -47,7 +47,8 @@ assets/
   data/exams.json       GENERATED — do not edit by hand
 
 data/
-  source/               the original, untouched export (the single source of truth)
+  source/               the untouched export (the single source of truth).
+                        Read at build time, NOT published — see the workflow.
   source/photos/        the teacher's original photo, untouched
   source/brand/         the booklet cover and the form banners, untouched
   build-report.json     GENERATED — what was published and what was excluded
@@ -97,7 +98,7 @@ that no hand-editing step sits between his sheet and the site:
 ```json
 {
   "المشروع": "…", "المعلّم": "…", "الجوال": "…",
-  "عدد الفورمات": 48, "إجمالي الأسئلة": 2303, "كلمة المرور": "…",
+  "عدد الفورمات": 48, "إجمالي الأسئلة": 2303,
   "الفورمات": [{ "الإصدار": 1, "الاسم": "الإصدار الأول — المتميز في القدرات الكمي",
                  "عدد الأسئلة": 48, "الدرجة": 48,
                  "الرابط المختصر": "https://forms.gle/…",
@@ -225,7 +226,11 @@ npm run set-url -- https://your-name.github.io/your-repo/
 
 Then set **Settings → Pages → Source: Deploy from a branch**, pick the branch and
 the root folder. `.nojekyll` is already committed, which matters here: without it
-Jekyll would drop files and choke on the Arabic filenames under `data/source/`.
+Jekyll would drop files and choke on the Arabic filenames in the repository.
+
+> Note that this path serves **the branch as it is**, so `data/source/` would be
+> published with it. The exclusion below happens in the Actions workflow; the
+> branch path has no equivalent step.
 
 > If you skip `set-url`, a small inline script repairs `canonical` and `og:url` in
 > the browser, but crawlers that do not run JavaScript read the raw HTML — so run it
@@ -344,7 +349,7 @@ for are «تجميعات الكمي» and «قدرات كمي محمد أسام�
 | `sitemap.xml` generated on every build, so `<lastmod>` tracks the dataset; his portrait is declared as an image of the pages it appears on, which is how a static site gets into Google Images | `tools/build-data.mjs` |
 | Every page's JSON-LD resolves on its own: a page that only *references* the Person or the WebSite carries a stub of it, because Google parses structured data one page at a time and an unresolved `@id` is a blank node | all pages |
 | A visible note under the credentials: قياس is the national assessment centre, the site is training material and is not affiliated with or endorsed by it. `llms.txt` says the same in Arabic and English | `teacher.html`, `llms.txt` |
-| Guard rails: `npm test` fails on unsupported claims (patterns, not phrases: «أفضل»/"best", guarantees, «معتمد من قياس», years of experience, student counts, prices), **on the access code appearing anywhere**, on an `@id` that does not resolve on its page, on a stub that disagrees with the full entity, on an `<img>` with no width/height, on a `target="_blank"` without `rel="noopener noreferrer"`, on a missing contact link, on FAQ markup drifting from the page, and on a stale `llms.txt` | `tools/test-seo.mjs` |
+| Guard rails: `npm test` fails on unsupported claims (patterns, not phrases: «أفضل»/"best", guarantees, «معتمد من قياس», years of experience, student counts, prices), on an `@id` that does not resolve on its page, on a stub that disagrees with the full entity, on an `<img>` with no width/height, on a `target="_blank"` without `rel="noopener noreferrer"`, on a missing contact link, on FAQ markup drifting from the page, and on a stale `llms.txt` | `tools/test-seo.mjs` |
 
 **Two Arabic points worth keeping straight**
 
@@ -409,26 +414,36 @@ Not worth doing: Wikidata/Wikipedia entries for a non-notable person, FAQ markup
 for rich results (Google removed them in May 2026 — ours is for people and AI
 readers), or Course rich results (retired in June 2025).
 
-## A note on the access code
+## What never leaves the repository
 
-The source export contains `"كلمة المرور": "2030"`, which is what the first page of each
-Google Form asks for. **It is deliberately not displayed anywhere on this site** — the
-site is public, and publishing the code here would remove the only gate on the forms.
-`about.html` tells students to get it from the teacher instead, and `tools/test-seo.mjs`
-fails the build if the code ever appears in a page or in `llms.txt`.
+Each Google Form opens with an access code on its first page. **It is nowhere in this
+repository** — not on a page, not in `llms.txt`, and not in the export either: the
+`كلمة المرور` field was removed, because the site never needed it and the repository
+is public. `about.html` tells students to get it from the teacher instead.
 
-**Edit links never enter this repository.** The teacher's exports sometimes carry a
-`رابط التعديل` per row — a `docs.google.com/forms/d/<id>/edit` URL, which hands write
-access to the live form to anyone who opens it. The repository is public and
-`data/source/` is published with everything else, so those are stripped before the
-export is saved. Two guards keep it that way: `build-data.mjs` **exits 1** if the
-export contains one, and `test-seo.mjs` fails if one reaches any published file.
+**Edit links never enter it either.** The teacher's exports sometimes carry a
+`رابط التعديل` per row — a `docs.google.com/forms/d/<id>/edit` URL, which hands
+write access to the live form to anyone who opens it. Those are stripped before the
+export is saved.
 
-That password is also the reason nothing on the site calls the versions **free**. They
+Three things keep it that way:
+
+| Guard | Where | What it does |
+| --- | --- | --- |
+| An edit link in the export | `tools/build-data.mjs` | **exits 1** and names the file — the build refuses to run |
+| An edit link, or an access-code **field**, in any file the repo carries | `tools/test-seo.mjs` | fails `npm test`, covering the pages, `llms.txt`, `exams.json`, the sitemap **and** `data/source/*.json`. It matches the field by key, never by value — writing the code into a test in a public repository would publish the thing the test exists to keep out |
+| A re-export that brings the code back | `tools/build-data.mjs` | warns on every build until it is removed |
+
+And `data/source/` is **dropped from the published artifact** by the deploy workflow
+(`Keep the source export out of the published site`), so even a future file in there
+is never served at `…/data/source/…`. Every step that reads it — the build and the
+tests — has already run by then. The branch-deploy path has no such step; see above.
+
+The same gate is the reason nothing on the site calls the versions **free**. They
 are the teacher's own material, published for his own students; `isAccessibleForFree`
 is `false`, every page says who they are for rather than what they cost, and the same
 forbidden-pattern list fails the build on «مجان» or a bare "free".
 
-If you would rather show it, that is a two-line change — add it to the hero or the about
-page and drop the guard from the forbidden list in `test-seo.mjs`. It is intentionally
+If you would rather show the code, that is a two-line change — put it on the hero or the
+about page and drop the access-code assertion from `test-seo.mjs`. It is intentionally
 not wired to a config flag so that it cannot be switched on by accident.

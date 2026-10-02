@@ -92,6 +92,14 @@ jobs:
       - name: Disable Jekyll processing
         run: touch .nojekyll
 
+      # The export is read to BUILD the dataset, never to serve it, and Pages
+      # publishes whatever is in the folder — so it would sit at a guessable
+      # URL under /data/source/. Every step that needs it has already run by
+      # now; this removes it from the uploaded artifact only, not from the
+      # repository.
+      - name: Keep the source export out of the published site
+        run: rm -rf data/source
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

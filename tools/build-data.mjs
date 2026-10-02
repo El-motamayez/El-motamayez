@@ -482,6 +482,12 @@ function main() {
   const raw = JSON.parse(sourceText);
   const priority = readPriority();
 
+  // Re-exports tend to carry it; it is never copied into the site, but it has
+  // no business sitting in the repository either (tools/test-seo.mjs fails on it).
+  if (pick(raw, 'كلمة المرور', 'password') !== undefined) {
+    console.warn('   ! the export still carries the access code — remove «كلمة المرور» from it');
+  }
+
   const project = pick(raw, 'المشروع', 'project') ?? null;
   const sourceForms = Array.isArray(raw) ? raw : pick(raw, 'الفورمات', 'forms');
   if (!Array.isArray(sourceForms)) {
