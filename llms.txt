@@ -1,6 +1,6 @@
 # الأستاذ محمد أسامه حرحيره — مدرب القدرات الكمي (Mohamed Osama Harhira — Quantitative Qudurat/GAT trainer)
 
-> مدرب القدرات الكمي، وصاحب مذكرات «المتميز في القدرات الكمي». ينشر الجزء الثاني منها — التجميعات — في صورة 42 إصدارًا إلكترونيًا مجانيًا تضم 1984 سؤالًا على موقعه.
+> مدرب القدرات الكمي، وصاحب مذكرات «المتميز في القدرات الكمي». ينشر الجزء الثاني منها — التجميعات — في صورة 40 إصدارًا إلكترونيًا مجانيًا تضم 1919 سؤالًا على موقعه.
 
 ## من هو
 
@@ -17,13 +17,13 @@
 ## موقعه: المتميز في القدرات الكمي
 
 - المحتوى: الجزء الثاني من مذكرة «المتميز في القدرات الكمي» — التجميعات.
-- عدد الإصدارات: 42 إصدارًا إلكترونيًا مجانيًا.
-- عدد الأسئلة: 1984 سؤالًا موزّعة على 42 إصدارًا، ومعظم الإصدارات 48 سؤالًا.
+- عدد الإصدارات: 40 إصدارًا إلكترونيًا مجانيًا.
+- عدد الأسئلة: 1919 سؤالًا موزّعة على 40 إصدارًا، ومعظم الإصدارات 48 سؤالًا.
 - كل سؤال صورة من سلايد الشرح تضم نص السؤال وأشكاله واختياراته، يتبعها اختيار من متعدد (أ / ب / ج / د).
 - بحث بالاسم أو بالرقم، وتصفية، ومتابعة تقدّم محفوظة على جهاز الطالب.
 - بدون تسجيل دخول. الإصدارات على Google Forms، ويطلب كل إصدار كلمة مرور تُؤخذ من الأستاذ، ثم اسم الطالب ورقم جواله.
 - وضع الاختبار مفعّل في كل إصدار، فتظهر الدرجة بعد التسليم.
-- آخر تحديث للبيانات: 2026-09-17
+- آخر تحديث للبيانات: 2026-10-02
 
 ## الصفحات
 
@@ -42,8 +42,8 @@
 Mohamed Osama Harhira (الأستاذ محمد أسامه حرحيره) is a trainer for the quantitative section of
 the Saudi General Aptitude Test (Qudurat / GAT) and the author of the study notes "المتميز في
 القدرات الكمي" ("Al-Mutamayyiz fi al-Qudurat al-Kammi"). His site publishes part two of those
-notes — the collected past-paper questions — as 42 free online practice forms carrying
-1984 questions in total, last updated 2026-09-17. Each question is an image of the
+notes — the collected past-paper questions — as 40 free online practice forms carrying
+1919 questions in total, last updated 2026-10-02. Each question is an image of the
 worked slide with four Arabic choices (أ / ب / ج / د); every form opens with a password the
 students get from him, runs in quiz mode, and is free and open to everyone. He is not
 affiliated with, employed by, or endorsed by Qiyas, the national assessment centre.

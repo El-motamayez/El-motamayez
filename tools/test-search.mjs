@@ -69,8 +69,13 @@ assert('an ordinal that no version carries', q('الخمسون').results.length 
 
 console.log('\nnumber lookup');
 assert('exact number wins', q('11').results[0]?.n === 11);
-assert('arabic-indic digits', q('٤٢').results[0]?.n === 42);
-assert('number prefix expands', q('4').results.some((e) => e.n === 41));
+// Derived from the dataset, not written down: dropping versions off the end
+// of the export must not take a test case with them.
+const lastNumber = exams[exams.length - 1].n;
+const arabicIndic = (n) => String(n).replace(/\d/g, (d) => '٠١٢٣٤٥٦٧٨٩'[Number(d)]);
+assert('arabic-indic digits', q(arabicIndic(lastNumber)).results[0]?.n === lastNumber);
+// A single digit is a prefix, not only an exact hit: "1" must still reach the teens.
+assert('number prefix expands', q('1').results.some((e) => e.n > 9));
 assert('out-of-range number', q('9999').results.length === 0);
 
 console.log('\nforgiveness');

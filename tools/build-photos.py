@@ -14,15 +14,15 @@ Run it only when an original changes — the outputs are committed.
    The gold-ringed emblem is cut out of it on its own circle, so the artwork
    carries its own rim and reads identically on cream and on navy.
 
-2. teacher-portrait-*.webp / .jpg  (square, shown as a circle)
-   Source: data/source/photos/teacher-portrait-source.jpg.
-   Cropped to a circle that holds the head with headroom and closes at the
-   knot of the tie, so the circle never cuts the face.
+2 & 3. the teacher's photo, from one cut-out
+   Source: data/source/photos/teacher-portrait-source.jpg. He is standing in
+   front of an exhibition banner, so the room is removed with rembg
+   (isnet-general-use) once and both outputs are cut from that result:
 
-3. teacher-standing-*.webp  (4:5, transparent background)
-   Same original, cut out with rembg (isnet-general-use), edge colours
-   decontaminated so no office light shows on the navy stage, then cropped
-   head-to-waist for the arch frame.
+   - teacher-portrait-*.webp / .jpg  — square, shown as a circle, on the
+     brand's own cream backdrop. Compositing rather than cropping is what keeps
+     the banner's lettering and green graphics out of the circle.
+   - teacher-standing-*.webp — 4:5, transparent, for the navy arch frame.
 """
 
 from pathlib import Path
@@ -108,46 +108,7 @@ def build_mark():
     return square
 
 
-# --- 2. Portrait ---------------------------------------------------------------
-
-# Circle on the original photo: the head with headroom, closing at the knot of
-# the tie so the crop reads as a portrait rather than a cut-off head.
-PORTRAIT_CX, PORTRAIT_CY, PORTRAIT_R = 949, 640, 455
-
-
-def build_portrait():
-    src = Image.open(SRC / "photos" / "teacher-portrait-source.jpg").convert("RGB")
-    square = src.crop(
-        (
-            PORTRAIT_CX - PORTRAIT_R,
-            PORTRAIT_CY - PORTRAIT_R,
-            PORTRAIT_CX + PORTRAIT_R,
-            PORTRAIT_CY + PORTRAIT_R,
-        )
-    )
-    for size in (720, 360, 144):
-        square.resize((size, size), Image.LANCZOS).save(
-            OUT / f"teacher-portrait-{size}.webp", "WEBP", quality=86, method=6
-        )
-
-    # JPEG avatar for crawlers and link previews that expect one. Search engines
-    # may show it square, so the circle is composited on the brand's cream with
-    # a gold ring: nothing outside the circle can show in a corner.
-    size, ring = 720, 10
-    avatar = Image.new("RGB", (size, size), CREAM)
-    ImageDraw.Draw(avatar).ellipse((4, 4, size - 5, size - 5), fill=GOLD)
-    inner = size - 2 * (ring + 4)
-    disc = as_circle(square, inner, inset=1.0)
-    avatar.paste(disc, (ring + 4, ring + 4), disc)
-    avatar.save(
-        OUT / "teacher-portrait.jpg", "JPEG", quality=88, optimize=True, progressive=True
-    )
-    return square
-
-
-# --- 3. Standing cut-out -------------------------------------------------------
-
-STANDING_BOX = (240, 150, 1670, 1937)  # head to waist, 4:5
+# --- 2. The cut-out both photos are cut from -----------------------------------
 
 
 def estimate_background(rgb, alpha):
@@ -171,25 +132,91 @@ def estimate_background(rgb, alpha):
     return out
 
 
-def build_standing():
+def build_cutout():
+    """The teacher, with the exhibition hall behind him removed."""
     from rembg import new_session, remove
 
     src = Image.open(SRC / "photos" / "teacher-portrait-source.jpg").convert("RGB")
     cut = remove(src, session=new_session("isnet-general-use"), post_process_mask=True)
     alpha = np.asarray(cut.split()[-1]).astype(np.float64) / 255.0
 
+    rgb = np.asarray(src).astype(np.float64)
+    red, green, blue = rgb[..., 0], rgb[..., 1], rgb[..., 2]
+
+    # The banner behind him carries a vivid green graphic, and the matte keeps a
+    # strip of it against his right arm where the two nearly touch. Eroding the
+    # whole silhouette enough to lose it would eat the hair, so the strip is
+    # removed by its colour instead: that green is far outside the range of his
+    # sage shirt (g-r peaks at 37 there but g-b stays near 3), so the two
+    # conditions together cannot match clothing or skin. Dilating by 2px takes
+    # the antialiased fringe around it with it.
+    banner_green = (alpha > 0.12) & (green - red > 25) & (green - blue > 20)
+    grown = Image.fromarray((banner_green * 255).astype(np.uint8)).filter(
+        ImageFilter.MaxFilter(5)
+    )
+    alpha[np.asarray(grown) > 0] = 0.0
+
     # Tighten the matte slightly and remove the room colour the soft edge pixels
-    # carry, so the outline stays clean against the navy stage.
+    # carry, so the outline stays clean against both backdrops.
     alpha = np.clip((alpha - 0.08) / 0.92, 0, 1)
     bg = estimate_background(src, alpha)
-    rgb = np.asarray(src).astype(np.float64)
     a = alpha[..., None]
     edge = (a > 0.02) & (a < 0.98)
-    fg = np.where(edge, (rgb - (1 - a) * bg) / np.maximum(a, 0.02), rgb)
-    fg = np.clip(fg, 0, 255)
+    fg = np.clip(np.where(edge, (rgb - (1 - a) * bg) / np.maximum(a, 0.02), rgb), 0, 255)
 
-    rgba = np.dstack([fg, alpha * 255]).astype(np.uint8)
-    out = Image.fromarray(rgba, "RGBA").crop(STANDING_BOX)
+    return Image.fromarray(np.dstack([fg, alpha * 255]).astype(np.uint8), "RGBA")
+
+
+# --- 3. Portrait ---------------------------------------------------------------
+
+# Square on the original photo: the head with headroom, closing at the shoulders
+# so the circle reads as a portrait rather than a cut-off head. The subject sits
+# slightly right of centre, so the box is pushed to the right edge of the frame.
+PORTRAIT_BOX = (96, 66, 796, 766)
+
+
+def paper_backdrop(size):
+    """A soft cream vignette — the page's own paper, lit from where he stands."""
+    yy, xx = np.mgrid[0:size, 0:size]
+    distance = np.sqrt((xx / size - 0.5) ** 2 + (yy / size - 0.40) ** 2)
+    t = np.clip((distance - 0.16) / 0.46, 0, 1)[..., None]
+    centre = np.array([255, 253, 248])  # --paper-50
+    rim = np.array([233, 229, 218])  # just under --paper-300
+    return Image.fromarray((centre * (1 - t) + rim * t).astype(np.uint8), "RGB")
+
+
+def build_portrait(cutout):
+    subject = cutout.crop(PORTRAIT_BOX)
+    square = paper_backdrop(subject.width)
+    square.paste(subject, (0, 0), subject)
+
+    for size in (720, 360, 144):
+        square.resize((size, size), Image.LANCZOS).save(
+            OUT / f"teacher-portrait-{size}.webp", "WEBP", quality=86, method=6
+        )
+
+    # JPEG avatar for crawlers and link previews that expect one. Search engines
+    # may show it square, so the circle is composited on the brand's cream with
+    # a gold ring: nothing outside the circle can show in a corner.
+    size, ring = 720, 10
+    avatar = Image.new("RGB", (size, size), CREAM)
+    ImageDraw.Draw(avatar).ellipse((4, 4, size - 5, size - 5), fill=GOLD)
+    inner = size - 2 * (ring + 4)
+    disc = as_circle(square, inner, inset=1.0)
+    avatar.paste(disc, (ring + 4, ring + 4), disc)
+    avatar.save(
+        OUT / "teacher-portrait.jpg", "JPEG", quality=88, optimize=True, progressive=True
+    )
+    return square
+
+
+# --- 4. Standing cut-out -------------------------------------------------------
+
+STANDING_BOX = (0, 66, 796, 1061)  # head to chest, 4:5
+
+
+def build_standing(cutout):
+    out = cutout.crop(STANDING_BOX)
     for w in (720, 400):
         h = round(w * out.height / out.width)
         out.resize((w, h), Image.LANCZOS).save(
@@ -202,7 +229,9 @@ if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
     m = build_mark()
     print("mark     :", m.size, "->", [f.name for f in sorted(OUT.glob("mark-*"))])
-    p = build_portrait()
+    cutout = build_cutout()
+    print("cut-out  :", cutout.size)
+    p = build_portrait(cutout)
     print("portrait :", p.size, "->", [f.name for f in sorted(OUT.glob("teacher-portrait*"))])
-    s = build_standing()
+    s = build_standing(cutout)
     print("standing :", s.size, "->", [f.name for f in sorted(OUT.glob("teacher-standing*"))])
