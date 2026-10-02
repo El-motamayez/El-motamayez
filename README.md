@@ -67,7 +67,7 @@ tools/
 
 ### Why no framework
 
-The site is one screen over 42 records. Vanilla ES modules ship about **13 KB of
+The site is one screen over 40 records. Vanilla ES modules ship about **13 KB of
 JavaScript**; React + a bundler would have cost roughly ten times that, plus a build
 step that can break a deployment. Everything is loaded as plain static files with
 **relative** paths, so the site works identically at
@@ -97,7 +97,7 @@ that no hand-editing step sits between his sheet and the site:
 ```json
 {
   "المشروع": "…", "المعلّم": "…", "الجوال": "…",
-  "عدد الفورمات": 42, "إجمالي الأسئلة": 1984, "كلمة المرور": "…",
+  "عدد الفورمات": 40, "إجمالي الأسئلة": 1919, "كلمة المرور": "…",
   "الفورمات": [{ "الإصدار": 1, "الاسم": "الإصدار الأول — المتميز في القدرات الكمي",
                  "عدد الأسئلة": 48, "الدرجة": 48,
                  "الرابط المختصر": "https://forms.gle/…",
@@ -113,10 +113,10 @@ same key.
 Three things the build derives rather than trusts:
 
 - **The title on the card** drops the trailing brand — «الإصدار الحادي عشر», not
-  «الإصدار الحادي عشر — المتميز في القدرات الكمي». Repeating the brand 42 times inside
+  «الإصدار الحادي عشر — المتميز في القدرات الكمي». Repeating the brand 40 times inside
   its own grid is noise, and the header already says it.
 - **The question count travels per record** (`q`), because the versions are not all the
-  same length: 48 for most, 47 for الثامن والثلاثون, 17 for الثاني والأربعون. The card
+  same length: 48 for every version except الثامن والثلاثون, which has 47. The card
   reads its own count; `meta.questionsPerForm` is only filled when every version agrees.
 - **The dataset's date** is the export file's own modification time, unless the export
   carries a `"التاريخ"` / `generated` field. It changes when the data changes, and
@@ -166,7 +166,7 @@ hides itself rather than showing an empty promise.
 ### Checking that the forms are still live
 
 ```bash
-npm run check:links              # probes all 42 URLs (hits Google)
+npm run check:links              # probes all 40 URLs (hits Google)
 npm run check:links -- --limit 25
 ```
 
@@ -248,7 +248,7 @@ The identity has only two colours, so the roles have to be strict: **navy acts, 
 marks, cream carries.** Rules the implementation follows:
 
 - **Navy is the only action colour in the light theme.** On the version cards, where
-  «ابدأ الاختبار» repeats 42 times, the button is a navy *tint* that fills solid on
+  «ابدأ الاختبار» repeats 40 times, the button is a navy *tint* that fills solid on
   hover, so the grid stays calm.
 - **In the dark theme navy becomes the page, so gold takes the action role** and carries
   navy letters — the cover's own pairing, read the other way round.
@@ -303,12 +303,12 @@ is seen. The round checkbox on each card toggles the mark by hand at any time.
 
 **The range chips follow the size of the export.** `build-data.mjs` picks the step from
 the highest number — 10 below 60 records, 20 below 150, 50 above — so the quick-jump row
-stays four or five chips whether the export holds 42 rows or 400. A short trailing batch
-is folded into the one before it, which is why the chips read `1–10 · 11–20 · 21–30 ·
-31–42` rather than ending on a lonely `41–42`.
+stays four or five chips whether the export holds 40 rows or 400. A short trailing batch
+is folded into the one before it, so an export ending at 42 would read `1–10 · 11–20 ·
+21–30 · 31–42` rather than trailing a lonely `41–42` chip.
 
 **Rendering is incremental.** 48 cards per batch, extended by an IntersectionObserver
-with an explicit «عرض المزيد» button as the accessible fallback. At 42 records that
+with an explicit «عرض المزيد» button as the accessible fallback. At 40 records that
 never triggers, and it costs nothing to leave in place for a larger export.
 
 **Links are validated twice** — once at build time, once again before a card is
@@ -321,7 +321,7 @@ All external links carry `rel="noopener noreferrer"`.
 
 The site is built around **the teacher, not the platform**: the goal is that
 «الأستاذ محمد أسامه حرحيره — مدرب القدرات الكمي» is the entity Google and the AI
-assistants (ChatGPT, Gemini, Claude, Copilot, Perplexity) recognise, and that the 42
+assistants (ChatGPT, Gemini, Claude, Copilot, Perplexity) recognise, and that the 40
 free versions read as *his* resource.
 
 **Name collision — read this first.** «محمد أسامه» is a very common Arabic name, so the
@@ -348,9 +348,8 @@ for are «تجميعات الكمي» and «قدرات كمي محمد أسام�
 
 **Two Arabic points worth keeping straight**
 
-42 falls in the 11–99 band, so its تمييز is the accusative singular: «42 إصدارًا», never
-«42 إصدارات». 1984 is a compound of المائة/الألف and takes the same singular form —
-«1984 سؤالًا». `unitNoun()` in `tools/build-data.mjs` and `countPhrase()` in
+40 falls in the 11–99 band, so its تمييز is the accusative singular: «40 إصدارًا», never
+«40 إصدارات». 1919 ends in 19, so it lands in the same band — «1919 سؤالًا». `unitNoun()` in `tools/build-data.mjs` and `countPhrase()` in
 `assets/js/app.js` get both right from `Intl.PluralRules('ar')`, so generated text
 should use them rather than a hard-coded word.
 
@@ -371,10 +370,15 @@ no testimonials).
   squaring it both straightens the coin and puts its own gold ring exactly on the edge
   the CSS circle clips to, with no pale halo and none of the gold ribbon that passes
   behind it;
-- the studio portrait becomes a circle, and a JPEG twin with a gold ring on cream for
-  search results and link previews that expect a square;
-- the same photo is cut out with `rembg` and framed in the navy arch, with the edge
-  colours decontaminated so no office light shows against the dark stage.
+- his photo was taken in front of an exhibition banner, so the room is removed with
+  `rembg` **once** and both outputs are cut from that one result. Compositing rather
+  than cropping is what keeps the banner's lettering and its green graphic out of the
+  circle; the banner green that the matte keeps against his arm is removed by colour,
+  because eroding the silhouette far enough to lose it would eat the hair;
+- the circle is composited on the brand's own cream vignette, with a JPEG twin carrying
+  a gold ring for search results and link previews that expect a square;
+- the same cut-out is framed in the navy arch, with the edge colours decontaminated so
+  none of the hall's light shows against the dark stage.
 
 Run it only when an original changes — the outputs are committed. `assets/img/og-cover.jpg`
 is made separately, by screenshotting `tools/og-cover.template.html` at 1200 × 630.

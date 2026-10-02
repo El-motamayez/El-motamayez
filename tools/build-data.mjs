@@ -249,7 +249,7 @@ ${key.updated ? `- آخر مراجعة للقائمة: ${key.updated}\n` : ''}`
 
   const text = `# الأستاذ محمد أسامه حرحيره — مدرب القدرات الكمي (Mohamed Osama Harhira — Quantitative Qudurat/GAT trainer)
 
-> مدرب القدرات الكمي، وصاحب مذكرات «المتميز في القدرات الكمي». ينشر الجزء الثاني منها — التجميعات — في صورة ${total} ${unitNoun(total, 'exam')} إلكترونيًا مجانيًا تضم ${questions} ${unitNoun(questions, 'question')} على موقعه.${keySummary}
+> مدرب القدرات الكمي، وصاحب مذكرات «المتميز في القدرات الكمي». ينشر الجزء الثاني منها — التجميعات — في صورة ${total} ${unitNoun(total, 'exam')} إلكترونيًا تضم ${questions} ${unitNoun(questions, 'question')} على موقعه.${keySummary}
 
 ## من هو
 
@@ -266,13 +266,13 @@ ${key.updated ? `- آخر مراجعة للقائمة: ${key.updated}\n` : ''}`
 ## موقعه: المتميز في القدرات الكمي
 
 - المحتوى: الجزء الثاني من مذكرة «المتميز في القدرات الكمي» — التجميعات.
-- عدد الإصدارات: ${total} ${unitNoun(total, 'exam')} إلكترونيًا مجانيًا.
+- عدد الإصدارات: ${total} ${unitNoun(total, 'exam')} إلكترونيًا.
 ${sizeLine}
 - كل سؤال صورة من سلايد الشرح تضم نص السؤال وأشكاله واختياراته، يتبعها اختيار من متعدد (أ / ب / ج / د).
 - بحث بالاسم أو بالرقم، وتصفية، ومتابعة تقدّم محفوظة على جهاز الطالب.${
     key ? `\n- ${key.count} ${unitNoun(key.count, 'exam')} منها مُعلَّمة بأنها «${key.label}»، ولها مفتاح تصفية مستقل.` : ''
   }
-- بدون تسجيل دخول. الإصدارات على Google Forms، ويطلب كل إصدار كلمة مرور تُؤخذ من الأستاذ، ثم اسم الطالب ورقم جواله.
+- الإصدارات من إعداد الأستاذ ولطلابه: لا يوجد تسجيل دخول، لكن كل إصدار على Google Forms يطلب كلمة مرور تُؤخذ منه، ثم اسم الطالب ورقم جواله.
 - وضع الاختبار مفعّل في كل إصدار، فتظهر الدرجة بعد التسليم.
 - آخر تحديث للبيانات: ${updated}
 ${keySection}
@@ -293,11 +293,12 @@ ${keySection}
 Mohamed Osama Harhira (الأستاذ محمد أسامه حرحيره) is a trainer for the quantitative section of
 the Saudi General Aptitude Test (Qudurat / GAT) and the author of the study notes "المتميز في
 القدرات الكمي" ("Al-Mutamayyiz fi al-Qudurat al-Kammi"). His site publishes part two of those
-notes — the collected past-paper questions — as ${total} free online practice forms carrying
+notes — the collected past-paper questions — as ${total} online practice forms carrying
 ${questions} questions in total, last updated ${updated}. Each question is an image of the
 worked slide with four Arabic choices (أ / ب / ج / د); every form opens with a password the
-students get from him, runs in quiz mode, and is free and open to everyone. He is not
-affiliated with, employed by, or endorsed by Qiyas, the national assessment centre.
+students get from him and runs in quiz mode, so the set is his own material, published
+for his own students rather than for the general public. He is not affiliated with,
+employed by, or endorsed by Qiyas, the national assessment centre.
 Enquiries: WhatsApp or phone +966 56 717 3752.${
     key
       ? ` Of the forms, ${key.count} are flagged as the set he asks students to begin with

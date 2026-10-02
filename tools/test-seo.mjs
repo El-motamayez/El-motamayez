@@ -165,7 +165,10 @@ console.log('\ncross-page');
     /دروس خصوصية|مدرس خصوصي|درس خاص/,
     /المتميّز/,
     // The access code gates the forms; publishing it here would remove the gate.
-    /2030/,
+    /\b2030\b/,
+    // The versions are the teacher's own material, for his students rather
+    // than the public, so nothing may advertise them as free.
+    /مجان|\bfree\b/i,
     /\d+\s*(سنة|سنوات|عام|عامًا|عاما)\s*(من\s*)?(ال)?خبرة/, /خبرة\s*\d+\s*(سنة|سنوات|عام)/,
     /\d{2,}\s*(طالب|طالبة|متدرب|متدربة)/,
     /ريال|\bSAR\b|السعر|الأسعار/,

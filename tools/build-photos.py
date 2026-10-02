@@ -14,15 +14,17 @@ Run it only when an original changes — the outputs are committed.
    The gold-ringed emblem is cut out of it on its own circle, so the artwork
    carries its own rim and reads identically on cream and on navy.
 
-2 & 3. the teacher's photo, from one cut-out
+2. teacher-portrait-*.webp / .jpg  (square, shown as a circle)
    Source: data/source/photos/teacher-portrait-source.jpg. He is standing in
-   front of an exhibition banner, so the room is removed with rembg
-   (isnet-general-use) once and both outputs are cut from that result:
+   front of an exhibition banner, and a circle that tight would frame its
+   lettering rather than him, so the room is removed with rembg
+   (isnet-general-use) and he is composited on the brand's own cream vignette.
 
-   - teacher-portrait-*.webp / .jpg  — square, shown as a circle, on the
-     brand's own cream backdrop. Compositing rather than cropping is what keeps
-     the banner's lettering and green graphics out of the circle.
-   - teacher-standing-*.webp — 4:5, transparent, for the navy arch frame.
+3. teacher-standing-*.webp  (4:5, for the arch frame)
+   The same photo, cropped head-to-chest and left exactly as it was taken —
+   background included. The arch is big enough to carry the real room, and a
+   photograph reads as a photograph; it is the tight circle that needed the
+   cut-out, not this.
 """
 
 from pathlib import Path
@@ -210,13 +212,16 @@ def build_portrait(cutout):
     return square
 
 
-# --- 4. Standing cut-out -------------------------------------------------------
+# --- 4. Standing photo ---------------------------------------------------------
 
 STANDING_BOX = (0, 66, 796, 1061)  # head to chest, 4:5
 
 
-def build_standing(cutout):
-    out = cutout.crop(STANDING_BOX)
+def build_standing():
+    """The photo as taken. The arch frame covers it edge to edge, so the stage
+    behind it never shows and the room becomes the backdrop."""
+    out = Image.open(SRC / "photos" / "teacher-portrait-source.jpg").convert("RGB")
+    out = out.crop(STANDING_BOX)
     for w in (720, 400):
         h = round(w * out.height / out.width)
         out.resize((w, h), Image.LANCZOS).save(
@@ -233,5 +238,5 @@ if __name__ == "__main__":
     print("cut-out  :", cutout.size)
     p = build_portrait(cutout)
     print("portrait :", p.size, "->", [f.name for f in sorted(OUT.glob("teacher-portrait*"))])
-    s = build_standing(cutout)
+    s = build_standing()
     print("standing :", s.size, "->", [f.name for f in sorted(OUT.glob("teacher-standing*"))])
