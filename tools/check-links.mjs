@@ -16,7 +16,18 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const { exams } = JSON.parse(fs.readFileSync(path.join(ROOT, 'assets/data/exams.json'), 'utf8'));
+
+/** Every published collection, each record labelled with where it came from. */
+const DATA_FILES = [
+  ['exams.json', 'الإصدار'],
+  ['tasis.json', 'التأسيس'],
+  ['namazij.json', 'النماذج'],
+];
+const exams = DATA_FILES.flatMap(([file, label]) => {
+  const full = path.join(ROOT, 'assets/data', file);
+  if (!fs.existsSync(full)) return [];
+  return JSON.parse(fs.readFileSync(full, 'utf8')).exams.map((e) => ({ ...e, from: label }));
+});
 
 const args = process.argv.slice(2);
 const offline = args.includes('--offline');
@@ -24,7 +35,11 @@ const limitFlag = args.indexOf('--limit');
 const limit = limitFlag !== -1 ? Number(args[limitFlag + 1]) : Infinity;
 const CONCURRENCY = 8;
 
-const fullUrl = (e) => e.u || (e.f ? `https://docs.google.com/forms/d/e/${e.f}/viewform` : null);
+// A record published with only its forms.gle link resolves to that link.
+const fullUrl = (e) =>
+  e.u ||
+  (e.f ? `https://docs.google.com/forms/d/e/${e.f}/viewform` : null) ||
+  (e.s ? `https://forms.gle/${e.s}` : null);
 const shortUrl = (e) => e.su || (e.s ? `https://forms.gle/${e.s}` : null);
 
 /* ---------------------------------- structure ---------------------------- */
@@ -36,7 +51,7 @@ const seen = new Set();
 
 for (const exam of exams) {
   const url = fullUrl(exam);
-  const label = `#${exam.n}`;
+  const label = `${exam.from} #${exam.n}`;
 
   if (!url) {
     structural.push(`${label} has no resolvable URL`);
@@ -94,15 +109,15 @@ async function probe(exam) {
     });
     // A retired Google Form still answers 200 but says so in the body.
     if (!response.ok) {
-      failures.push(`#${exam.n} HTTP ${response.status} — ${exam.t}`);
+      failures.push(`${exam.from} #${exam.n} HTTP ${response.status} — ${exam.t}`);
     } else {
       const body = await response.text();
       if (/الاستمارة غير موجودة|Form not found|قد تم إغلاق|no longer accepting/i.test(body)) {
-        failures.push(`#${exam.n} form appears closed or missing — ${exam.t}`);
+        failures.push(`${exam.from} #${exam.n} form appears closed or missing — ${exam.t}`);
       }
     }
   } catch (error) {
-    failures.push(`#${exam.n} request failed (${error.name}) — ${exam.t}`);
+    failures.push(`${exam.from} #${exam.n} request failed (${error.name}) — ${exam.t}`);
   }
   done += 1;
   if (done % 25 === 0 || done === targets.length) {

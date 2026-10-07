@@ -60,6 +60,8 @@
     <link rel="stylesheet" href="assets/css/components.css" />
 
     <link rel="preload" href="assets/data/exams.json" as="fetch" crossorigin />
+    <link rel="preload" href="assets/data/tasis.json" as="fetch" crossorigin />
+    <link rel="preload" href="assets/data/namazij.json" as="fetch" crossorigin />
 
     <script>
       /* Apply the saved theme before first paint to avoid a flash. */
@@ -159,7 +161,7 @@
             "author": { "@id": "__SITE_URL__teacher.html#person" },
             "mainEntity": { "@id": "__SITE_URL__#practice" },
             "inLanguage": "ar-SA",
-            "dateModified": "2026-10-02"
+            "dateModified": "2026-10-07"
           },
           {
             "@type": "LearningResource",
@@ -213,7 +215,7 @@
   </head>
 
   <body>
-    <a class="skip-link" href="#exams">تخطَّ إلى قائمة الإصدارات</a>
+    <a class="skip-link" href="#exams" data-ct="تخطَّ إلى قائمة {plDef}">تخطَّ إلى قائمة الإصدارات</a>
 
     <!-- Icon sprite -->
     <svg width="0" height="0" style="position: absolute" aria-hidden="true" focusable="false">
@@ -304,6 +306,20 @@
           <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5z" />
           <path d="M14 3v5h5M9 13h6M9 17h4" />
         </symbol>
+        <!-- The three collections: building blocks, stacked versions, a sum. -->
+        <symbol id="i-blocks" viewBox="0 0 24 24">
+          <rect x="3.5" y="13.5" width="7" height="7" rx="1.6" />
+          <rect x="13.5" y="13.5" width="7" height="7" rx="1.6" />
+          <rect x="8.5" y="3.5" width="7" height="7" rx="1.6" />
+        </symbol>
+        <symbol id="i-layers" viewBox="0 0 24 24">
+          <path d="m12 3.5 8.5 4.5-8.5 4.5L3.5 8 12 3.5z" />
+          <path d="m3.5 12 8.5 4.5 8.5-4.5" />
+          <path d="m3.5 16 8.5 4.5 8.5-4.5" />
+        </symbol>
+        <symbol id="i-sigma" viewBox="0 0 24 24">
+          <path d="M17.5 7V4.5h-11l6 7.5-6 7.5h11V17" />
+        </symbol>
       </defs>
     </svg>
 
@@ -370,7 +386,7 @@
       <section class="hero" aria-labelledby="hero-title">
         <div class="container hero__inner">
           <div class="hero__copy">
-            <p class="eyebrow">المتميز في القدرات الكمي · الجزء الثاني — التجميعات</p>
+            <p class="eyebrow">المتميز في القدرات الكمي · التأسيس والتجميعات</p>
 
             <h1 class="hero__title" id="hero-title">
               تجميعات الكمي مع <em>الأستاذ محمد أسامه</em>
@@ -397,13 +413,14 @@
 
             <form class="search" id="searchForm" role="search" autocomplete="off">
               <svg class="icon search__icon" aria-hidden="true"><use href="#i-search" /></svg>
-              <label class="sr-only" for="searchInput">ابحث في الإصدارات</label>
+              <label class="sr-only" for="searchInput" data-ct="ابحث في {plDef}">ابحث في الإصدارات</label>
               <input
                 class="search__input"
                 id="searchInput"
                 type="search"
                 name="q"
                 placeholder="ابحث برقم الإصدار أو باسمه"
+                data-ca="placeholder|ابحث برقم {def} أو باسمه"
                 enterkeyhint="search"
                 aria-describedby="searchHint"
               />
@@ -423,7 +440,8 @@
             </form>
 
             <p class="hero__hint" id="searchHint">
-              مثال: الحادي عشر، أو <span class="tnum">11</span>
+              <span>مثال: <span data-ct="{example}">الحادي عشر</span>، أو</span>
+              <span class="tnum" data-ct="{exampleN}">11</span>
               <span class="hero__hint-sep" aria-hidden="true">·</span>
               <span class="hero__hint-key">اضغط <kbd>/</kbd> للانتقال إلى البحث</span>
             </p>
@@ -438,7 +456,7 @@
                 <span data-unit="question">أسئلة</span>
               </li>
               <li>
-                <b class="tnum"><time datetime="2026-09-17" data-stat="updated">2 أكتوبر 2026</time></b>
+                <b class="tnum"><time datetime="2026-10-07" data-stat="updated">7 أكتوبر 2026</time></b>
                 <span>آخر تحديث</span>
               </li>
               <li class="hero__stats-key" hidden>
@@ -478,6 +496,55 @@
           </figure>
         </div>
       </section>
+
+      <!-- ========================= Collections ======================== -->
+      <!-- Three sets of forms, each with its own search, filters and progress.
+           Real links (?c=…) so any of them can be shared or opened in a new
+           tab; app.js switches in place on a plain click. The figures are
+           stamped by tools/build-data.mjs so the row never shifts on load. -->
+      <nav class="collections container" id="collections" aria-label="أقسام النماذج">
+        <ul class="collections__list">
+          <li>
+            <a class="collection" href="?c=tasis" data-collection="tasis">
+              <span class="collection__icon" aria-hidden="true">
+                <svg class="icon icon--lg"><use href="#i-blocks" /></svg>
+              </span>
+              <span class="collection__text">
+                <span class="collection__name">تأسيس الكمي</span>
+                <span class="collection__sub">مهارةً مهارة</span>
+              </span>
+              <b class="collection__count tnum" data-stat="count-tasis">19</b>
+              <span class="collection__bar" aria-hidden="true"><span class="collection__fill"></span></span>
+            </a>
+          </li>
+          <li>
+            <a class="collection" href="./" data-collection="isdarat" aria-current="page">
+              <span class="collection__icon" aria-hidden="true">
+                <svg class="icon icon--lg"><use href="#i-layers" /></svg>
+              </span>
+              <span class="collection__text">
+                <span class="collection__name">إصدارات الكمي</span>
+                <span class="collection__sub">التجميعات</span>
+              </span>
+              <b class="collection__count tnum" data-stat="count-isdarat">48</b>
+              <span class="collection__bar" aria-hidden="true"><span class="collection__fill"></span></span>
+            </a>
+          </li>
+          <li>
+            <a class="collection" href="?c=namazij" data-collection="namazij">
+              <span class="collection__icon" aria-hidden="true">
+                <svg class="icon icon--lg"><use href="#i-sigma" /></svg>
+              </span>
+              <span class="collection__text">
+                <span class="collection__name">نماذج الكمي</span>
+                <span class="collection__sub">التجميعات الحديثة</span>
+              </span>
+              <b class="collection__count tnum" data-stat="count-namazij">20</b>
+              <span class="collection__bar" aria-hidden="true"><span class="collection__fill"></span></span>
+            </a>
+          </li>
+        </ul>
+      </nav>
 
       <!-- ======================== Quick access ======================== -->
       <section class="quick container" id="quickAccess" aria-labelledby="quick-title">
@@ -531,7 +598,7 @@
               <svg class="icon icon--lg"><use href="#i-shuffle" /></svg>
             </span>
             <span class="tile__body">
-              <span class="tile__label">إصدار عشوائي</span>
+              <span class="tile__label" data-ct="{sg} عشوائي">إصدار عشوائي</span>
               <span class="tile__meta" id="tileRandomMeta">يفتح فورًا في تبويب جديد</span>
             </span>
             <svg class="icon tile__go flip" aria-hidden="true"><use href="#i-external" /></svg>
@@ -584,7 +651,7 @@
         <div class="container">
           <div class="toolbar">
             <div class="toolbar__heading">
-              <h2 id="exams-title">الإصدارات</h2>
+              <h2 id="exams-title" data-ct="{heading}">الإصدارات</h2>
               <p class="result-count" id="resultCount"><b>—</b></p>
               <p class="sr-only" id="resultCountLive" role="status" aria-live="polite"></p>
             </div>
@@ -638,7 +705,11 @@
             <p class="keybar__hint" id="keyHint"></p>
           </div>
 
-          <nav class="ranges" aria-label="الانتقال إلى مجموعة من الإصدارات">
+          <nav
+            class="ranges"
+            aria-label="الانتقال إلى مجموعة من الإصدارات"
+            data-ca="aria-label|الانتقال إلى مجموعة من {plDef}"
+          >
             <div class="chips" id="rangeChips"></div>
           </nav>
 
@@ -672,7 +743,7 @@
             <div class="state__actions">
               <button type="button" class="btn btn--primary" data-reset-proxy>
                 <svg class="icon" aria-hidden="true"><use href="#i-refresh" /></svg>
-                <span>عرض جميع الإصدارات</span>
+                <span data-ct="عرض جميع {plDef}">عرض جميع الإصدارات</span>
               </button>
             </div>
           </div>
@@ -696,7 +767,12 @@
           <div id="scrollSentinel" aria-hidden="true"></div>
 
           <div class="load-more" id="loadMore" hidden>
-            <button type="button" class="btn btn--secondary" id="loadMoreBtn">
+            <button
+              type="button"
+              class="btn btn--secondary"
+              id="loadMoreBtn"
+              data-ct="عرض المزيد من {plDef}"
+            >
               عرض المزيد من الإصدارات
             </button>
             <p class="load-more__meta" id="loadMoreMeta"></p>
@@ -843,7 +919,7 @@
         aria-labelledby="filterSheetTitle"
       >
         <div class="sheet__head">
-          <h2 id="filterSheetTitle">تصفية الإصدارات</h2>
+          <h2 id="filterSheetTitle" data-ct="تصفية {plDef}">تصفية الإصدارات</h2>
           <button type="button" class="icon-btn sheet__close" id="filterSheetClose" aria-label="إغلاق">
             <svg class="icon icon--lg" aria-hidden="true"><use href="#i-close" /></svg>
           </button>
@@ -869,7 +945,7 @@
     <template id="examCardTemplate">
       <article class="card">
         <div class="card__top">
-          <span class="card__number">إصدار <b class="tnum">0</b></span>
+          <span class="card__number"><span data-field="unit">إصدار</span> <b class="tnum">0</b></span>
           <span class="card__flags">
             <button type="button" class="icon-btn card__fav" aria-pressed="false">
               <svg class="icon" aria-hidden="true"><use href="#i-heart" /></svg>

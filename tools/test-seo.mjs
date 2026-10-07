@@ -205,6 +205,9 @@ console.log('\ncross-page');
   {
     const EDIT = /https:\/\/docs\.google\.com\/forms\/d\/[A-Za-z0-9_-]+\/edit/;
     const files = [...PAGES, 'llms.txt', 'assets/data/exams.json', 'sitemap.xml'];
+    for (const name of ['tasis.json', 'namazij.json']) {
+      if (fs.existsSync(path.join(ROOT, 'assets/data', name))) files.push(`assets/data/${name}`);
+    }
     const sourceDir = path.join(ROOT, 'data', 'source');
     for (const name of fs.existsSync(sourceDir) ? fs.readdirSync(sourceDir) : []) {
       if (name.toLowerCase().endsWith('.json')) files.push(`data/source/${name}`);

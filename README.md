@@ -44,7 +44,9 @@ assets/
   fonts/                IBM Plex Sans Arabic, self-hosted and subset (tools/build-fonts.md)
   img/                  the brand emblem (mark-*.webp), the teacher's photos
                         (teacher-portrait-*, teacher-standing-*), favicons, OG cover
-  data/exams.json       GENERATED — do not edit by hand
+  data/exams.json       GENERATED — do not edit by hand (the 48 versions)
+  data/tasis.json       GENERATED — نماذج التأسيس
+  data/namazij.json     GENERATED — نماذج التجميعات الحديثة
 
 data/
   source/               the untouched export (the single source of truth).
@@ -122,6 +124,38 @@ Three things the build derives rather than trusts:
 - **The dataset's date** is the export file's own modification time, unless the export
   carries a `"التاريخ"` / `generated` field. It changes when the data changes, and
   never on a rebuild that changed nothing.
+
+### The three collections
+
+The home page switches between three sets of forms with the cards under the hero:
+
+| Card | Source export (`data/source/`) | Published as | URL |
+| --- | --- | --- | --- |
+| تأسيس الكمي | `نماذج التأسيس.json` | `assets/data/tasis.json` | `?c=tasis` |
+| إصدارات الكمي | the largest other `.json` (the 1–48 export) | `assets/data/exams.json` | `./` (default) |
+| نماذج الكمي | `نماذج التجميعات الحديثة.json` | `assets/data/namazij.json` | `?c=namazij` |
+
+The two newer exports use the same Arabic schema as the versions, numbered with
+`"النموذج"` instead of `"الإصدار"`. A row may carry only `"الرابط المختصر"` (a
+forms.gle link). That is a usable address on its own, so the row is published.
+`npm run build:data` builds all three. The same validation applies to each, and each
+gets its own entry under `collections` in `data/build-report.json`. Deleting one of
+the two newer exports removes its dataset and its card. Nothing else needs changing.
+
+What switching does:
+
+- Each collection keeps **its own progress** in its own `localStorage` key. The 48
+  versions keep the original key `mutamayyiz-kammi:v1`, so existing students lose
+  nothing. The others use `mutamayyiz-kammi:tasis:v1` and `mutamayyiz-kammi:namazij:v1`.
+- Search, filters, range chips, the quick-access tiles, the progress bar and the
+  card wording («الإصدار 5» / «النموذج 5») all follow the open collection. Static
+  copy in `index.html` that names the collection carries a `data-ct` / `data-ca`
+  template, which `app.js` fills.
+- Each card shows its own total and a gold track once the student has started it.
+- The hero figures, the shortlist, the structured data and the FAQ still describe the
+  48 versions. `llms.txt` lists the other two collections from their data.
+- Only the versions' dataset is required. If one of the others fails to load, its card
+  is hidden and the rest of the page keeps working.
 
 ### Optional: a «ابدأ بهذه» shortlist
 

@@ -1,0 +1,106 @@
+{
+ "المشروع": "المتميز في القدرات الكمي — نماذج التأسيس",
+ "المعلّم": "الأستاذ / محمد أسامه — مدرب القدرات الكمي",
+ "الفورمات": [
+  {
+   "النموذج": 1,
+   "الاسم": "الأعداد والعمليات عليها",
+   "الرابط المختصر": "https://forms.gle/xNHk6AJePDzSNgU39"
+  },
+  {
+   "النموذج": 2,
+   "الاسم": "قابلية القسمة",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSfiuNZicL90JH6gO5elmIPuIyDK-288-h0GSMUOp9UZgbPNwQ/viewform"
+  },
+  {
+   "النموذج": 3,
+   "الاسم": "عد الأعداد وجمعها",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSeP4Puq_4AkD-QkUiZwfFSAeheqBs3mYiBNZsieFCRtGEDlWg/viewform"
+  },
+  {
+   "النموذج": 4,
+   "الاسم": "النسبة والتناسب",
+   "ملاحظة": "الرابط المرسل لهذا النموذج كان رابط النموذج الخامس نفسه (عنوان الفورم: النسبة المئوية). يُضاف «الرابط الكامل» أو «الرابط المختصر» الصحيح هنا ثم npm run build:data."
+  },
+  {
+   "النموذج": 5,
+   "الاسم": "النسبة المئوية",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSfug4pt96pZNa8iHEaN8Pg13718AmcqdXVJ_oRkIXvX7l9vqQ/viewform"
+  },
+  {
+   "النموذج": 6,
+   "الاسم": "الأسس",
+   "الرابط المختصر": "https://forms.gle/KUyUxekeQhHJugPVA"
+  },
+  {
+   "النموذج": 7,
+   "الاسم": "الكسور",
+   "الرابط المختصر": "https://forms.gle/xUx1r9ZXAbJiUyQi8"
+  },
+  {
+   "النموذج": 8,
+   "الاسم": "الأعداد العشرية",
+   "الرابط المختصر": "https://forms.gle/78WJNHCNdASsnB5w5"
+  },
+  {
+   "النموذج": 9,
+   "الاسم": "الجذور",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSfxPDCZpFMnMegqFcvrNJYnmAUILsHU7WLjglpn5TuAMSEZ0w/viewform"
+  },
+  {
+   "النموذج": 10,
+   "الاسم": "الفرق بين مربعين",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSd4ClS2Vc-eHgiCTca-9Ny-4Bewq1w41JwUtvl3LtruY6XrDg/viewform"
+  },
+  {
+   "النموذج": 11,
+   "الاسم": "المسائل الحياتية 1",
+   "الرابط المختصر": "https://forms.gle/tsD4m7jq6Fohzr9GA"
+  },
+  {
+   "النموذج": 12,
+   "الاسم": "المسائل الحياتية 2",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSeHeX2QAC-ydtrP39Uib9EpH1jDJhzRYtteIvqJNa32avb4nw/viewform"
+  },
+  {
+   "النموذج": 13,
+   "الاسم": "الأنماط وقوانين هامة",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSfCrV4yJt0OosCfTH_nVxhNo4RO8KKOMTyC8mrGU3S59KbV9g/viewform"
+  },
+  {
+   "النموذج": 14,
+   "الاسم": "الإحصاء",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSd3JbuYaSSmQum3-hNjpdrjDgYuHGqnMv5pGA7teYi4LF1SWA/viewform"
+  },
+  {
+   "النموذج": 15,
+   "الاسم": "الرسوم البيانية",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSejR_i0CKvosruiXsXv_g1zm0AHlLxrCPXOlSsg-ybf2_0X_w/viewform"
+  },
+  {
+   "النموذج": 16,
+   "الاسم": "زوايا المضلع",
+   "الرابط المختصر": "https://forms.gle/JwLkUHex95Mv3rbv8"
+  },
+  {
+   "النموذج": 17,
+   "الاسم": "زوايا المثلث",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSeFFnJ_R01-fv3J7Hnr_KGvM6vpEiQ93y7_mgnu5GPtLosGBA/viewform"
+  },
+  {
+   "النموذج": 18,
+   "الاسم": "مساحات الأشكال",
+   "الرابط الكامل": "https://docs.google.com/forms/d/e/1FAIpQLSfHmNNqDQvSQnGq3sL6k8dlGV7qadTUG8KU2eoDtrq0uezWkw/viewform"
+  },
+  {
+   "النموذج": 19,
+   "الاسم": "الدائرة والحجوم",
+   "الرابط المختصر": "https://forms.gle/hDig5QkhJLFVjUTVA"
+  },
+  {
+   "النموذج": 20,
+   "الاسم": "اختبار تأسيس شامل",
+   "الرابط المختصر": "https://forms.gle/VdXAAr5i91JdXBiVA"
+  }
+ ]
+}

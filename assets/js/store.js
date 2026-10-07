@@ -8,6 +8,7 @@
  * the visit.
  */
 
+/** The 48 versions' key — unchanged, so existing progress carries over. */
 const KEY = 'mutamayyiz-kammi:v1';
 
 /**
@@ -49,170 +50,180 @@ function parse(raw) {
   return next;
 }
 
-let available = true;
-let cache = null;
+/**
+ * One independent store per storage key. The page keeps one per collection
+ * (the versions, the foundation forms, the recent-compilation forms), because
+ * each numbers its forms from 1 and a "done" mark must never cross over.
+ */
+export function createStore(storageKey) {
+  let available = true;
+  let cache = null;
 
-function read() {
-  if (cache) return cache;
-  cache = fresh();
+  function read() {
+    if (cache) return cache;
+    cache = fresh();
 
-  let raw = null;
-  try {
-    raw = localStorage.getItem(KEY);
-  } catch {
-    available = false; // blocked storage: stay in memory
+    let raw = null;
+    try {
+      raw = localStorage.getItem(storageKey);
+    } catch {
+      available = false; // blocked storage: stay in memory
+      return cache;
+    }
+
+    if (raw) {
+      try {
+        cache = parse(raw);
+      } catch {
+        /* corrupted entry: start clean; the next write replaces it */
+      }
+    }
     return cache;
   }
 
-  if (raw) {
-    try {
-      cache = parse(raw);
-    } catch {
-      /* corrupted entry: start clean; the next write replaces it */
-    }
-  }
-  return cache;
-}
+  let flushHandle = 0;
 
-let flushHandle = 0;
-
-function flush() {
-  clearTimeout(flushHandle);
-  flushHandle = 0;
-  if (!available || !cache) return;
-  try {
-    localStorage.setItem(KEY, JSON.stringify(cache));
-  } catch {
-    available = false;
-  }
-}
-
-/** Coalesce bursts of changes; `flush()` runs early whenever the page is hidden. */
-function write() {
-  if (!available) return;
-  clearTimeout(flushHandle);
-  flushHandle = setTimeout(flush, 120);
-}
-
-const listeners = new Set();
-
-if (typeof window !== 'undefined') {
-  // Opening an exam hides this tab, and mobile browsers may discard a hidden
-  // tab without warning — so never leave a change sitting in the debounce.
-  window.addEventListener('pagehide', flush);
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') flush();
-  });
-
-  // Another tab of the portal changed progress: drop the stale copy and let
-  // the page repaint from the fresh one instead of overwriting it later.
-  window.addEventListener('storage', (event) => {
-    if (event.key !== KEY && event.key !== null) return;
+  function flush() {
     clearTimeout(flushHandle);
     flushHandle = 0;
-    cache = null;
-    listeners.forEach((fn) => fn());
-  });
+    if (!available || !cache) return;
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(cache));
+    } catch {
+      available = false;
+    }
+  }
+
+  /** Coalesce bursts of changes; `flush()` runs early whenever the page is hidden. */
+  function write() {
+    if (!available) return;
+    clearTimeout(flushHandle);
+    flushHandle = setTimeout(flush, 120);
+  }
+
+  const listeners = new Set();
+
+  if (typeof window !== 'undefined') {
+    // Opening an exam hides this tab, and mobile browsers may discard a hidden
+    // tab without warning — so never leave a change sitting in the debounce.
+    window.addEventListener('pagehide', flush);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') flush();
+    });
+
+    // Another tab of the portal changed progress: drop the stale copy and let
+    // the page repaint from the fresh one instead of overwriting it later.
+    window.addEventListener('storage', (event) => {
+      if (event.key !== storageKey && event.key !== null) return;
+      clearTimeout(flushHandle);
+      flushHandle = 0;
+      cache = null;
+      listeners.forEach((fn) => fn());
+    });
+  }
+
+  return {
+    get isAvailable() {
+      read();
+      return available;
+    },
+
+    isDone(n) {
+      return Boolean(read().done[n]);
+    },
+
+    isFav(n) {
+      return Boolean(read().fav[n]);
+    },
+
+    /** @returns {boolean} the new state */
+    setDone(n, on) {
+      const s = read();
+      if (on) s.done[n] = 1;
+      else delete s.done[n];
+      write();
+      return Boolean(on);
+    },
+
+    /** @returns {boolean} the new state */
+    toggleDone(n) {
+      return this.setDone(n, !this.isDone(n));
+    },
+
+    /** @returns {boolean} the new state */
+    toggleFav(n) {
+      const s = read();
+      const next = !s.fav[n];
+      if (next) s.fav[n] = 1;
+      else delete s.fav[n];
+      write();
+      return next;
+    },
+
+    /** Record that a form was opened (the resume point and the "opened…" hint). */
+    markOpened(n, now = Date.now()) {
+      const s = read();
+      s.opened[n] = now;
+      s.last = n;
+      write();
+    },
+
+    get lastOpened() {
+      return read().last;
+    },
+
+    openedAt(n) {
+      return read().opened[n] || 0;
+    },
+
+    /** An independent deep copy, for undo. */
+    snapshot() {
+      return JSON.parse(JSON.stringify(read()));
+    },
+
+    restore(snapshot) {
+      cache = parse(JSON.stringify(snapshot));
+      write();
+    },
+
+    /**
+     * Forget completion history — done marks, opened times and the resume point —
+     * but keep favourites, which the student chose on purpose.
+     */
+    resetProgress() {
+      const fav = { ...read().fav };
+      cache = { ...fresh(), fav };
+      write();
+    },
+
+    /** Wipe everything, favourites included. */
+    clear() {
+      clearTimeout(flushHandle);
+      flushHandle = 0;
+      cache = fresh();
+      try {
+        localStorage.removeItem(storageKey);
+      } catch {
+        /* the in-memory state is already clean */
+      }
+    },
+
+    /** Save any unsaved change, then drop the in-memory copy so the next read comes from storage. */
+    reload() {
+      if (flushHandle) flush();
+      cache = null;
+    },
+
+    /** Called after another tab changes the stored progress. */
+    subscribe(fn) {
+      listeners.add(fn);
+      return () => listeners.delete(fn);
+    },
+
+    /** Write immediately (used by tests and before navigation). */
+    flush,
+  };
 }
 
-export const store = {
-  get isAvailable() {
-    read();
-    return available;
-  },
-
-  isDone(n) {
-    return Boolean(read().done[n]);
-  },
-
-  isFav(n) {
-    return Boolean(read().fav[n]);
-  },
-
-  /** @returns {boolean} the new state */
-  setDone(n, on) {
-    const s = read();
-    if (on) s.done[n] = 1;
-    else delete s.done[n];
-    write();
-    return Boolean(on);
-  },
-
-  /** @returns {boolean} the new state */
-  toggleDone(n) {
-    return this.setDone(n, !this.isDone(n));
-  },
-
-  /** @returns {boolean} the new state */
-  toggleFav(n) {
-    const s = read();
-    const next = !s.fav[n];
-    if (next) s.fav[n] = 1;
-    else delete s.fav[n];
-    write();
-    return next;
-  },
-
-  /** Record that a form was opened (the resume point and the "opened…" hint). */
-  markOpened(n, now = Date.now()) {
-    const s = read();
-    s.opened[n] = now;
-    s.last = n;
-    write();
-  },
-
-  get lastOpened() {
-    return read().last;
-  },
-
-  openedAt(n) {
-    return read().opened[n] || 0;
-  },
-
-  /** An independent deep copy, for undo. */
-  snapshot() {
-    return JSON.parse(JSON.stringify(read()));
-  },
-
-  restore(snapshot) {
-    cache = parse(JSON.stringify(snapshot));
-    write();
-  },
-
-  /**
-   * Forget completion history — done marks, opened times and the resume point —
-   * but keep favourites, which the student chose on purpose.
-   */
-  resetProgress() {
-    const fav = { ...read().fav };
-    cache = { ...fresh(), fav };
-    write();
-  },
-
-  /** Wipe everything, favourites included. */
-  clear() {
-    clearTimeout(flushHandle);
-    flushHandle = 0;
-    cache = fresh();
-    try {
-      localStorage.removeItem(KEY);
-    } catch {
-      /* the in-memory state is already clean */
-    }
-  },
-
-  /** Save any unsaved change, then drop the in-memory copy so the next read comes from storage. */
-  reload() {
-    if (flushHandle) flush();
-    cache = null;
-  },
-
-  /** Called after another tab changes the stored progress. */
-  subscribe(fn) {
-    listeners.add(fn);
-    return () => listeners.delete(fn);
-  },
-
-  /** Write immediately (used by tests and before navigation). */
-  flush,
-};
+/** The versions' store — what every page used before collections existed. */
+export const store = createStore(KEY);

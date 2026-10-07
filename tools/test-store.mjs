@@ -212,6 +212,27 @@ console.log('\nsaving before the tab is hidden');
   assert('reload() keeps unsaved changes', store.isDone(13) === true);
 }
 
+console.log('\none store per collection');
+{
+  localStorage.map.clear();
+  const { store, createStore } = await import('../assets/js/store.js?case=collections');
+  const other = createStore('mutamayyiz-kammi:tasis:v1');
+  store.setDone(3, true);
+  other.toggleFav(3);
+  store.flush();
+  other.flush();
+  assert('the versions keep their original key', saved()?.done?.[3] === 1 && !saved()?.fav?.[3]);
+  assert('the same number is independent in each', !other.isDone(3) && !store.isFav(3));
+  let versionsNotified = 0;
+  store.subscribe(() => {
+    versionsNotified += 1;
+  });
+  window.dispatchEvent(Object.assign(new Event('storage'), { key: 'mutamayyiz-kammi:tasis:v1' }));
+  assert("another collection's change does not disturb this one", versionsNotified === 0);
+  other.resetProgress();
+  assert('resetting one leaves the other alone', store.isDone(3));
+}
+
 console.log(`\n${pass} passed, ${fail} failed\n`);
 // Pending debounce timers would otherwise keep the process alive briefly.
 process.exit(fail ? 1 : 0);

@@ -696,15 +696,217 @@ kbd {
 }
 
 /* --------------------------------------------------------------------------
+   Collections — التأسيس · الإصدارات · النماذج
+   Three cards that switch everything below them. Phones: three narrow
+   columns, each a centred stack — icon, figure, name. From 720px each card
+   lies down: icon, name, and the figure at the far end.
+   -------------------------------------------------------------------------- */
+
+/* Pulled up over the hero's bottom edge: choosing a collection is the first
+   thing to do after arriving, so it takes the place the tiles used to. */
+.collections {
+  position: relative;
+  z-index: 2;
+  margin-block-start: calc(-1 * var(--sp-10));
+}
+
+.collections__list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.collections__list > li {
+  display: flex;
+  min-width: 0;
+}
+
+.collections__list > li[hidden] {
+  display: none;
+}
+
+.collection {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  min-height: 136px;
+  padding: var(--sp-4) var(--sp-2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-2);
+  text-align: center;
+  text-decoration: none;
+  color: var(--ink);
+  overflow: hidden;
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease),
+    transform var(--dur) var(--ease), background-color var(--dur) var(--ease);
+}
+
+.collection:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-3);
+  transform: translateY(-2px);
+}
+
+.collection:active {
+  transform: translateY(0);
+}
+
+.collection__icon {
+  order: 0;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  margin-block-end: var(--sp-1);
+  border-radius: 12px;
+  background: var(--surface-sunken);
+  color: var(--ink-2);
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+.collection__count {
+  order: 1;
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.collection__text {
+  order: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+.collection__name {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+.collection__sub {
+  font-size: var(--fs-xs);
+  line-height: 1.4;
+  color: var(--ink-3);
+}
+
+/* The open collection: the navy action colour (gold in the dark theme),
+   a doubled edge, and the icon filled in. */
+.collection[aria-current="page"] {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, var(--accent-soft), transparent 75%), var(--surface);
+  box-shadow: 0 0 0 1px var(--accent), var(--shadow-accent), var(--shadow-2);
+}
+
+.collection[aria-current="page"]:hover {
+  border-color: var(--accent);
+}
+
+.collection[aria-current="page"] .collection__icon {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.collection[aria-current="page"] .collection__count,
+.collection[aria-current="page"] .collection__name {
+  color: var(--accent-tint-ink);
+}
+
+/* How much of that collection is done: a thin gold track along the bottom,
+   drawn only once the student has started it. Inset from the edges so the
+   rounded corners never clip a small share away. */
+.collection__bar {
+  position: absolute;
+  inset-inline: var(--sp-4);
+  inset-block-end: var(--sp-2);
+  height: 4px;
+  border-radius: var(--r-full);
+  overflow: hidden;
+}
+
+.collection--started .collection__bar {
+  background: var(--surface-sunken);
+}
+
+.collection__fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-400));
+  transition: width var(--dur-slow) var(--ease);
+}
+
+@media (min-width: 420px) {
+  .collection__name {
+    font-size: var(--fs-md);
+  }
+}
+
+@media (min-width: 720px) {
+  .collection {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: var(--sp-3);
+    min-height: 92px;
+    padding: var(--sp-4) var(--sp-5);
+    text-align: start;
+  }
+
+  .collection__icon {
+    width: 48px;
+    height: 48px;
+    margin: 0;
+    border-radius: 14px;
+  }
+
+  .collection__text {
+    order: 1;
+    align-items: flex-start;
+  }
+
+  .collection__name {
+    font-size: var(--fs-lg);
+  }
+
+  .collection__count {
+    order: 2;
+    margin-inline-start: auto;
+    padding-inline-start: var(--sp-2);
+    font-size: 2rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
    Quick access
    -------------------------------------------------------------------------- */
 
 /* Pulled up over the hero's bottom edge so the tiles read as the first
-   thing to do after searching, not as a separate band. */
+   thing to do after searching, not as a separate band — unless the
+   collection cards above have taken that place. */
 .quick {
   position: relative;
   z-index: 2;
   margin-block-start: calc(-1 * var(--sp-10));
+}
+
+.collections:not([hidden]) + .quick {
+  margin-block-start: var(--sp-3);
 }
 
 .quick__grid {

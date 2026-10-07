@@ -27,11 +27,31 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SOURCE_DIR = path.join(ROOT, 'data', 'source');
-const OUT_FILE = path.join(ROOT, 'assets', 'data', 'exams.json');
+const OUT_DIR = path.join(ROOT, 'assets', 'data');
+const OUT_FILE = path.join(OUT_DIR, 'exams.json');
 const REPORT_FILE = path.join(ROOT, 'data', 'build-report.json');
 /** The teacher's shortlist of the versions he wants students to start with. */
 const PRIORITY_FILE = path.join(SOURCE_DIR, 'priority.json');
 const EOL = '\n';
+
+/**
+ * The site carries three sets of forms, each switched to from its own card
+ * above the list. The 48 versions are the primary set: their export is the
+ * largest file in data/source/, they own the hero figures, the shortlist,
+ * llms.txt and the original `exams.json`. The other two are read from files
+ * named here and published beside it. `id` is the `?c=` value on the page
+ * (assets/js/app.js) and the `data-stat="count-<id>"` marker in index.html.
+ */
+const EXTRA_COLLECTIONS = [
+  { id: 'tasis', source: 'نماذج التأسيس.json', out: 'tasis.json', name: 'نماذج التأسيس' },
+  {
+    id: 'namazij',
+    source: 'نماذج التجميعات الحديثة.json',
+    out: 'namazij.json',
+    name: 'نماذج التجميعات الحديثة',
+  },
+];
+const PRIMARY_ID = 'isdarat';
 
 /* -------------------------------------------------------------------------- */
 /* Arabic text normalisation — shared with the client (assets/js/search.js).   */
@@ -139,6 +159,7 @@ const PLURAL = new Intl.PluralRules('ar');
 
 const UNIT_NOUNS = {
   exam: { zero: 'إصدارات', one: 'إصدار', two: 'إصداران', few: 'إصدارات', many: 'إصدارًا', other: 'إصدار' },
+  model: { zero: 'نماذج', one: 'نموذج', two: 'نموذجان', few: 'نماذج', many: 'نموذجًا', other: 'نموذج' },
   question: { zero: 'أسئلة', one: 'سؤال', two: 'سؤالان', few: 'أسئلة', many: 'سؤالًا', other: 'سؤال' },
 };
 
@@ -170,7 +191,7 @@ function fillMarker(html, attr, value) {
   return html.replace(pattern, (_m, open, _old, close) => `${open}${value}${close}`);
 }
 
-function stampHero(meta) {
+function stampHero(meta, collections = []) {
   const file = path.join(ROOT, 'index.html');
   if (!fs.existsSync(file)) return;
 
@@ -178,6 +199,11 @@ function stampHero(meta) {
   const before = html;
 
   html = fillMarker(html, 'data-stat="total"', arabicNumber(meta.total));
+
+  // The figure on each collection card, for the same no-shift reason.
+  for (const { id, total } of collections) {
+    html = fillMarker(html, `data-stat="count-${id}"`, arabicNumber(total));
+  }
   html = fillMarker(html, 'data-unit="exam"', `${unitNoun(meta.total, 'exam')} إلكترونيًا`);
 
   if (meta.totalQuestions) {
@@ -192,16 +218,12 @@ function stampHero(meta) {
 
   if (meta.generated) {
     html = fillMarker(html, 'data-stat="updated"', formatDate(meta.generated));
-    html = html.replace(
-      /(<time[^>]*data-stat="updated"[^>]*datetime=")[^"]*(")/,
-      `$1${meta.generated}$2`,
+    // Whichever side of data-stat the attribute sits on, or add it if absent.
+    html = html.replace(/<time\b[^>]*data-stat="updated"[^>]*>/, (tag) =>
+      /\bdatetime="/.test(tag)
+        ? tag.replace(/\bdatetime="[^"]*"/, `datetime="${meta.generated}"`)
+        : tag.replace(/^<time\b/, `<time datetime="${meta.generated}"`),
     );
-    if (!/datetime="/.test(html.match(/<time[^>]*data-stat="updated"[^>]*>/)?.[0] || '')) {
-      html = html.replace(
-        /<time([^>]*)data-stat="updated"/,
-        `<time$1datetime="${meta.generated}" data-stat="updated"`,
-      );
-    }
   }
 
   if (meta.generated) {
@@ -223,8 +245,23 @@ function stampHero(meta) {
  * platform is one of the things he offers. Figures come from the dataset so
  * they can never drift; the site URL is stamped later by set-site-url.mjs.
  */
-function writeLlmsTxt(meta) {
+function writeLlmsTxt(meta, extras = []) {
   const total = meta.total;
+  // Only what the exports actually say: a count and the topic names. Nothing
+  // is claimed about their length or their access, which they do not record.
+  const extrasSection = extras.length
+    ? `
+## نماذج أخرى على الموقع
+
+${extras
+  .map((c) => {
+    const topics = c.titles.some((t) => !t.startsWith('النموذج')) ? ` (${c.titles.join('، ')})` : '';
+    return `- ${c.name}: ${c.total} ${unitNoun(c.total, 'model')}${topics} — __SITE_URL__?c=${c.id}`;
+  })
+  .join('\n')}
+- تُختار من البطاقات أعلى القائمة، ولكل مجموعة بحثها وتصفيتها وتقدّمها المستقل.
+`
+    : '';
   const questions = meta.totalQuestions ?? 0;
   const perForm = meta.questionsPerForm;
   const updated = meta.generated ?? meta.builtAt;
@@ -275,7 +312,7 @@ ${sizeLine}
 - الإصدارات من إعداد الأستاذ ولطلابه: لا يوجد تسجيل دخول، لكن كل إصدار على Google Forms يطلب كلمة مرور تُؤخذ منه، ثم اسم الطالب ورقم جواله.
 - وضع الاختبار مفعّل في كل إصدار، فتظهر الدرجة بعد التسليم.
 - آخر تحديث للبيانات: ${updated}
-${keySection}
+${keySection}${extrasSection}
 ## الصفحات
 
 - [الأستاذ محمد أسامه — مدرب القدرات الكمي](__SITE_URL__teacher.html): نبذته ومنهجه وطرق التواصل معه وأسئلة شائعة عنه.
@@ -444,12 +481,14 @@ function findSourceFile() {
   if (!fs.existsSync(SOURCE_DIR)) {
     throw new Error(`Source directory not found: ${SOURCE_DIR}`);
   }
+  // The other collections' exports live here too, under the names above.
+  const claimed = new Set(EXTRA_COLLECTIONS.map((c) => path.join(SOURCE_DIR, c.source)));
   const candidates = fs
     .readdirSync(SOURCE_DIR)
     .filter((f) => f.toLowerCase().endsWith('.json'))
     .map((f) => path.join(SOURCE_DIR, f))
     // The priority shortlist lives here too, but it is not a forms export.
-    .filter((f) => f !== PRIORITY_FILE);
+    .filter((f) => f !== PRIORITY_FILE && !claimed.has(f));
 
   if (!candidates.length) {
     throw new Error(`No .json export found in ${SOURCE_DIR}`);
@@ -475,23 +514,32 @@ function assertNoEditLinks(sourceFile, text) {
   process.exit(1);
 }
 
-function main() {
-  const sourceFile = findSourceFile();
+const relative = (file) => path.relative(ROOT, file).replace(/\\/g, '/');
+
+/**
+ * One export in, one validated runtime model out. Every collection goes
+ * through here; only the primary one carries a shortlist.
+ *
+ * @param {string} sourceFile
+ * @param {{ priority?: ReturnType<typeof readPriority> | null, noun?: string }} [options]
+ *   `noun` names a row in the report («الإصدار 5», «النموذج 5»).
+ */
+function buildCollection(sourceFile, { priority = null, noun = 'الإصدار' } = {}) {
   const sourceText = fs.readFileSync(sourceFile, 'utf8');
   assertNoEditLinks(sourceFile, sourceText);
   const raw = JSON.parse(sourceText);
-  const priority = readPriority();
+  const shortlist = priority?.numbers ?? new Set();
 
   // Re-exports tend to carry it; it is never copied into the site, but it has
   // no business sitting in the repository either (tools/test-seo.mjs fails on it).
   if (pick(raw, 'كلمة المرور', 'password') !== undefined) {
-    console.warn('   ! the export still carries the access code — remove «كلمة المرور» from it');
+    console.warn(`   ! ${relative(sourceFile)} still carries the access code — remove «كلمة المرور» from it`);
   }
 
   const project = pick(raw, 'المشروع', 'project') ?? null;
   const sourceForms = Array.isArray(raw) ? raw : pick(raw, 'الفورمات', 'forms');
   if (!Array.isArray(sourceForms)) {
-    throw new Error('Source JSON has no forms array («الفورمات» / "forms").');
+    throw new Error(`${relative(sourceFile)} has no forms array («الفورمات» / "forms").`);
   }
 
   const exams = [];
@@ -500,8 +548,8 @@ function main() {
   const seenNumber = new Map();
 
   for (const [index, row] of sourceForms.entries()) {
-    const rawNumber = pick(row, 'الإصدار', 'section', 'number');
-    const where = `#${index} (الإصدار ${rawNumber ?? '?'})`;
+    const rawNumber = pick(row, 'الإصدار', 'النموذج', 'section', 'number');
+    const where = `#${index} (${noun} ${rawNumber ?? '?'})`;
 
     const number = Number(rawNumber);
     if (!Number.isInteger(number) || number <= 0) {
@@ -516,13 +564,25 @@ function main() {
       continue;
     }
 
-    const canonical = safeHttpsUrl(pick(row, 'الرابط الكامل', 'url'));
-    if (!canonical) {
-      issues.push({ where, reason: 'invalid-or-insecure-url', value: pick(row, 'الرابط الكامل', 'url') });
+    const fullValue = pick(row, 'الرابط الكامل', 'url');
+    const short = safeHttpsUrl(pick(row, 'الرابط المختصر', 'short'));
+    // Some rows carry only the forms.gle link. It redirects to the same form,
+    // so it is a usable address on its own; it just cannot be reduced to a
+    // form id. A full link that IS present but unusable still excludes the row.
+    const canonical = fullValue === undefined ? short : safeHttpsUrl(fullValue);
+    if (fullValue === undefined && pick(row, 'الرابط المختصر', 'short') === undefined) {
+      // Listed by the teacher, but its link has not been supplied yet.
+      issues.push({ where, reason: 'missing-url', value: rawTitle });
       continue;
     }
-
-    const short = safeHttpsUrl(pick(row, 'الرابط المختصر', 'short'));
+    if (!canonical) {
+      issues.push({
+        where,
+        reason: 'invalid-or-insecure-url',
+        value: fullValue ?? pick(row, 'الرابط المختصر', 'short'),
+      });
+      continue;
+    }
 
     // Store the Google Form id when the URL is canonical — it keeps the payload
     // small. Anything else is kept verbatim (still https-validated).
@@ -539,7 +599,7 @@ function main() {
       issues.push({
         where,
         reason: 'duplicate-url',
-        value: `also used by الإصدار ${seenUrl.get(canonical)}`,
+        value: `also used by ${noun} ${seenUrl.get(canonical)}`,
       });
       continue;
     }
@@ -560,11 +620,11 @@ function main() {
     }
 
     if (formMatch) record.f = formMatch[1];
-    else record.u = canonical;
+    else if (!(canonical === short && shortMatch)) record.u = canonical;
     if (shortMatch) record.s = shortMatch[1];
-    else if (short) record.su = short;
+    else if (short && short !== record.u) record.su = short;
     // One flag byte rather than a second array the client would have to join.
-    if (priority.numbers.has(number)) record.p = 1;
+    if (shortlist.has(number)) record.p = 1;
 
     exams.push(record);
   }
@@ -618,7 +678,7 @@ function main() {
   // A number on the shortlist that no published form answers to is a typo in
   // the shortlist, not a reason to fail: it is dropped and reported.
   const published = new Set(exams.map((e) => e.n));
-  const priorityUnknown = [...priority.numbers].filter((n) => !published.has(n)).sort((a, b) => a - b);
+  const priorityUnknown = [...shortlist].filter((n) => !published.has(n)).sort((a, b) => a - b);
   const priorityCount = exams.filter((e) => e.p).length;
 
   // The export carries no date of its own, so the file's own mtime is the
@@ -641,36 +701,108 @@ function main() {
       first: min,
       last: max,
       ranges,
-      priority: priorityCount
-        ? {
-            label: priority.label,
-            blurb: priority.blurb,
-            count: priorityCount,
-            updated: priority.updated,
-          }
-        : null,
+      priority:
+        priority && priorityCount
+          ? {
+              label: priority.label,
+              blurb: priority.blurb,
+              count: priorityCount,
+              updated: priority.updated,
+            }
+          : null,
       builtAt: new Date().toISOString().slice(0, 10),
     },
     exams,
   };
 
-  fs.mkdirSync(path.dirname(OUT_FILE), { recursive: true });
-  fs.writeFileSync(OUT_FILE, JSON.stringify(payload), 'utf8');
+  return {
+    sourceFile,
+    sourceRecords: sourceForms.length,
+    exams,
+    issues,
+    payload,
+    ranges,
+    counts,
+    priorityCount,
+    priorityUnknown,
+  };
+}
 
-  stampHero(payload.meta);
-  writeLlmsTxt(payload.meta);
-  writeSitemap(payload.meta);
+function writePayload(file, payload) {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, JSON.stringify(payload), 'utf8');
+  return fs.statSync(file).size;
+}
+
+function main() {
+  const priority = readPriority();
+  const primary = buildCollection(findSourceFile(), { priority, noun: 'الإصدار' });
+  const { exams, issues, ranges, counts, priorityCount, priorityUnknown } = primary;
+  const { meta } = primary.payload;
+
+  if (exams.length === 0) {
+    console.error('FAILED: no publishable exams were produced.');
+    process.exit(1);
+  }
+
+  // The other collections. A missing export is a supported state: its card
+  // simply does not appear. Its old dataset is removed with it, so a deleted
+  // export can never keep a stale card alive.
+  const extras = [];
+  for (const collection of EXTRA_COLLECTIONS) {
+    const sourceFile = path.join(SOURCE_DIR, collection.source);
+    const outFile = path.join(OUT_DIR, collection.out);
+    if (!fs.existsSync(sourceFile)) {
+      if (fs.existsSync(outFile)) fs.rmSync(outFile);
+      console.warn(`   ! ${collection.id}: no export at data/source/${collection.source} — not published`);
+      continue;
+    }
+    const built = buildCollection(sourceFile, { noun: 'النموذج' });
+    if (built.exams.length === 0) {
+      console.error(`FAILED: ${collection.id} produced no publishable forms.`);
+      process.exit(1);
+    }
+    Object.assign(built.payload.meta, { id: collection.id, name: collection.name });
+    built.outputBytes = writePayload(outFile, built.payload);
+    extras.push({ ...collection, built });
+  }
+
+  // The page as a whole changed when any of its collections did, so the
+  // freshness date the hero, the structured data, llms.txt and the sitemap
+  // carry is the latest of them — not only the 48 versions' own.
+  const siteUpdated = [meta.generated, ...extras.map((c) => c.built.payload.meta.generated)]
+    .filter(Boolean)
+    .sort()
+    .pop();
+  meta.siteUpdated = siteUpdated;
+  const outputBytes = writePayload(OUT_FILE, primary.payload);
+
+  const siteMeta = { ...meta, generated: siteUpdated };
+  stampHero(siteMeta, [
+    { id: PRIMARY_ID, total: exams.length },
+    ...extras.map((c) => ({ id: c.id, total: c.built.exams.length })),
+  ]);
+  writeLlmsTxt(
+    siteMeta,
+    extras.map((c) => ({
+      id: c.id,
+      name: c.name,
+      total: c.built.exams.length,
+      titles: c.built.exams.map((e) => e.t),
+    })),
+  );
+  writeSitemap(siteMeta);
 
   const report = {
-    sourceFile: path.relative(ROOT, sourceFile).replace(/\\/g, '/'),
-    sourceRecords: sourceForms.length,
+    sourceFile: relative(primary.sourceFile),
+    sourceRecords: primary.sourceRecords,
     published: exams.length,
     excluded: issues.length,
     issues,
     questions: {
-      total: totalQuestions,
-      perForm: payload.meta.questionsPerForm,
-      typical: questionsTypical,
+      total: meta.totalQuestions,
+      perForm: meta.questionsPerForm,
+      typical: meta.questionsTypical,
       counted: counts.length,
     },
     priority: {
@@ -679,29 +811,44 @@ function main() {
       flagged: priorityCount,
       unknown: priorityUnknown,
     },
-    outputBytes: fs.statSync(OUT_FILE).size,
+    outputBytes,
     ranges,
+    collections: extras.map((c) => ({
+      id: c.id,
+      name: c.name,
+      sourceFile: relative(c.built.sourceFile),
+      output: `assets/data/${c.out}`,
+      sourceRecords: c.built.sourceRecords,
+      published: c.built.exams.length,
+      excluded: c.built.issues.length,
+      issues: c.built.issues,
+      outputBytes: c.built.outputBytes,
+      ranges: c.built.ranges,
+    })),
   };
   fs.writeFileSync(REPORT_FILE, JSON.stringify(report, null, 2), 'utf8');
 
   console.log(`source      : ${report.sourceFile}`);
-  console.log(`records     : ${sourceForms.length}`);
+  console.log(`records     : ${primary.sourceRecords}`);
   console.log(`published   : ${exams.length}`);
   console.log(`excluded    : ${issues.length}`);
   for (const i of issues) console.log(`   ! ${i.where} — ${i.reason} ${i.value ?? ''}`);
   console.log(
-    `questions   : ${totalQuestions ?? '—'} total` +
-      (payload.meta.questionsPerForm ? ` (${payload.meta.questionsPerForm} each)` : ` (${questionsTypical} typical)`),
+    `questions   : ${meta.totalQuestions ?? '—'} total` +
+      (meta.questionsPerForm ? ` (${meta.questionsPerForm} each)` : ` (${meta.questionsTypical} typical)`),
   );
   console.log(`priority    : ${priorityCount} flagged "${priority.label}"`);
   for (const n of priorityUnknown) console.log(`   ! priority ${n} — no published form with that number`);
   console.log(`ranges      : ${ranges.map((r) => `${r.from}-${r.to}(${r.count})`).join(' ')}`);
-  console.log(`dataset date: ${generated}`);
-  console.log(`output      : assets/data/exams.json  (${(report.outputBytes / 1024).toFixed(1)} KB)`);
+  console.log(`dataset date: ${meta.generated} (site ${siteUpdated})`);
+  console.log(`output      : assets/data/exams.json  (${(outputBytes / 1024).toFixed(1)} KB)`);
 
-  if (exams.length === 0) {
-    console.error('FAILED: no publishable exams were produced.');
-    process.exit(1);
+  for (const c of report.collections) {
+    console.log(
+      `${c.id.padEnd(12)}: ${c.published} of ${c.sourceRecords} published, ${c.excluded} excluded` +
+        `  -> ${c.output}  (${(c.outputBytes / 1024).toFixed(1)} KB)`,
+    );
+    for (const i of c.issues) console.log(`   ! ${i.where} — ${i.reason} ${i.value ?? ''}`);
   }
 }
 

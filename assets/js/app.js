@@ -10,13 +10,68 @@
  * never re-render the list: they repaint only the affected card, the counters
  * and the quick-access tiles, so a student deep in the grid never loses their
  * place.
+ *
+ * The page carries three collections — the foundation forms, the 48 versions
+ * and the recent-compilation forms — switched from the cards above the list.
+ * Each has its own dataset and its own progress store, and everything below
+ * works on whichever one is active: `state.ordered`, `state.byNumber` and
+ * `store` are swapped as a set by useCollection().
  */
 
 import { parseQuery, searchExams, highlightRanges } from './search.js';
-import { store } from './store.js';
+import { store as versionsStore, createStore } from './store.js';
 
 const PAGE_SIZE = 48;
-const DATA_URL = new URL('../data/exams.json', import.meta.url);
+
+/**
+ * Words differ per collection («الإصدار 5», «النموذج 5»), and Arabic needs a
+ * few forms of each noun: indefinite, definite, accusative, and the plural
+ * with and without the article. `unit` picks the counted forms in UNITS.
+ * The ids match tools/build-data.mjs and the `?c=` value in the URL.
+ */
+const MODEL_NOUN = { sg: 'نموذج', def: 'النموذج', acc: 'نموذجًا', pl: 'نماذج', plDef: 'النماذج' };
+
+const COLLECTIONS = [
+  {
+    id: 'isdarat',
+    url: new URL('../data/exams.json', import.meta.url),
+    store: versionsStore,
+    required: true,
+    unit: 'exam',
+    noun: { sg: 'إصدار', def: 'الإصدار', acc: 'إصدارًا', pl: 'إصدارات', plDef: 'الإصدارات' },
+    name: 'إصدارات الكمي',
+    heading: 'الإصدارات',
+    example: 'الحادي عشر',
+    exampleN: 11,
+  },
+  {
+    id: 'tasis',
+    url: new URL('../data/tasis.json', import.meta.url),
+    storeKey: 'mutamayyiz-kammi:tasis:v1',
+    unit: 'model',
+    noun: MODEL_NOUN,
+    name: 'تأسيس الكمي',
+    heading: 'نماذج التأسيس',
+    example: 'الكسور',
+    exampleN: 7,
+  },
+  {
+    id: 'namazij',
+    url: new URL('../data/namazij.json', import.meta.url),
+    storeKey: 'mutamayyiz-kammi:namazij:v1',
+    unit: 'model',
+    noun: MODEL_NOUN,
+    name: 'نماذج الكمي',
+    heading: 'نماذج التجميعات الحديثة',
+    example: 'الخامس',
+    exampleN: 5,
+  },
+];
+
+const DEFAULT_COLLECTION = 'isdarat';
+
+/** The active collection's progress. Reassigned by useCollection(). */
+let store = versionsStore;
 
 /* -------------------------------------------------------------------------- */
 /* Element lookup                                                              */
@@ -93,6 +148,8 @@ const el = {
   toast: $('#toast'),
   toastText: $('#toastText'),
   toastActions: $('#toastActions'),
+  collections: $('#collections'),
+  collectionLinks: $$('[data-collection]'),
   statTotal: $$('[data-stat="total"]'),
   statQuestions: $$('[data-stat="questions"]'),
   statUpdated: $$('[data-stat="updated"]'),
@@ -107,6 +164,12 @@ const DEFAULTS = { q: '', range: 'all', status: 'all', sort: 'number-asc', key: 
 
 const state = {
   ...DEFAULTS,
+  /** The active collection's id (`?c=`). Not part of DEFAULTS: "reset" keeps it. */
+  c: DEFAULT_COLLECTION,
+  /** id -> { config, data, ordered, byNumber, store } for every collection that loaded. */
+  loaded: new Map(),
+  /** The active entry of `loaded`. */
+  col: null,
   data: null,
   /** Every exam, ascending by number. */
   ordered: [],
@@ -219,6 +282,14 @@ const UNITS = {
     many: (n) => `${arabicNumber(n)} إصدارًا`,
     other: (n) => `${arabicNumber(n)} إصدار`,
   },
+  model: {
+    zero: () => 'لا نماذج',
+    one: () => 'نموذج واحد',
+    two: () => 'نموذجان',
+    few: (n) => `${arabicNumber(n)} نماذج`,
+    many: (n) => `${arabicNumber(n)} نموذجًا`,
+    other: (n) => `${arabicNumber(n)} نموذج`,
+  },
   question: {
     zero: () => 'لا أسئلة',
     one: () => 'سؤال واحد',
@@ -240,9 +311,38 @@ function unitNoun(n, unit) {
   return countPhrase(n, unit).replace(/^[\d٠-٩,،.\s]+/, '');
 }
 
+/** The active collection's words. */
+const noun = () => (state.col?.config ?? COLLECTIONS[0]).noun;
+
+/** `countPhrase` in the active collection's unit: "19 نموذجًا", "48 إصدارًا". */
+const countItems = (n) => countPhrase(n, (state.col?.config ?? COLLECTIONS[0]).unit);
+
+/**
+ * Static copy in index.html that names the collection carries its own
+ * template — `data-ct` for text, `data-ca="attr|template"` for one attribute —
+ * with {sg} {def} {acc} {pl} {plDef} {heading} {example} {exampleN} slots.
+ */
+function fillTemplate(template, config) {
+  const values = { ...config.noun, heading: config.heading, example: config.example };
+  values.exampleN = arabicNumber(config.exampleN);
+  return template.replace(/\{(\w+)\}/g, (match, name) => values[name] ?? match);
+}
+
+function paintCollectionCopy(config) {
+  $$('[data-ct]').forEach((node) => {
+    node.textContent = fillTemplate(node.dataset.ct, config);
+  });
+  $$('[data-ca]').forEach((node) => {
+    const [attr, template] = node.dataset.ca.split('|');
+    node.setAttribute(attr, fillTemplate(template, config));
+  });
+}
+
 function examUrl(exam) {
   if (exam.u) return exam.u;
   if (exam.f) return `https://docs.google.com/forms/d/e/${exam.f}/viewform`;
+  // Some forms were published with only their forms.gle link.
+  if (exam.s) return `https://forms.gle/${exam.s}`;
   return null;
 }
 
@@ -353,6 +453,11 @@ function toast(message, { duration = 2600, action = null } = {}) {
 
 function readStateFromUrl() {
   const params = new URLSearchParams(location.search);
+  // The collection first: the shortlist checks below depend on which one it is.
+  // An unknown id, or one whose dataset failed to load, falls back quietly.
+  const c = params.get('c');
+  useCollection(state.loaded.has(c) ? c : DEFAULT_COLLECTION);
+
   state.q = params.get('q') ?? DEFAULTS.q;
   state.range = params.get('range') ?? DEFAULTS.range;
   state.status = params.get('status') ?? DEFAULTS.status;
@@ -371,16 +476,19 @@ function readStateFromUrl() {
   if (state.range !== 'all' && !parseRange(state.range)) state.range = 'all';
 }
 
-const syncUrl = debounce(() => {
+function urlForState() {
   const params = new URLSearchParams();
+  if (state.c !== DEFAULT_COLLECTION) params.set('c', state.c);
   for (const name of ['q', 'range', 'status', 'sort']) {
     if (state[name] && state[name] !== DEFAULTS[name]) params.set(name, state[name]);
   }
   if (state.key === 'only') params.set('key', '1');
   const search = params.toString();
-  const next = `${location.pathname}${search ? `?${search}` : ''}`;
-  history.replaceState(null, '', next);
-}, 250);
+  return `${location.pathname}${search ? `?${search}` : ''}`;
+}
+
+/** Filter changes replace the entry; only a collection switch adds one. */
+const syncUrl = debounce(() => history.replaceState(null, '', urlForState()), 250);
 
 /* -------------------------------------------------------------------------- */
 /* Filtering                                                                   */
@@ -494,13 +602,13 @@ function paintCardState(node) {
   const toggle = $('.card__toggle', node);
   const toggleText = done ? 'إلغاء تحديد الإنجاز' : 'تحديد كمُنجز';
   toggle.setAttribute('aria-pressed', String(done));
-  toggle.setAttribute('aria-label', `${toggleText} — الإصدار ${number}`);
+  toggle.setAttribute('aria-label', `${toggleText} — ${noun().def} ${number}`);
   toggle.title = toggleText;
 
   const favButton = $('.card__fav', node);
   const favText = fav ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة';
   favButton.setAttribute('aria-pressed', String(fav));
-  favButton.setAttribute('aria-label', `${favText} — الإصدار ${number}`);
+  favButton.setAttribute('aria-label', `${favText} — ${noun().def} ${number}`);
   favButton.title = favText;
 
   // Status line: "done" wins; otherwise say when it was last opened, so a
@@ -520,7 +628,7 @@ function paintCardState(node) {
   if (cta) {
     const verb = done ? 'أعد الاختبار' : 'ابدأ الاختبار';
     $('.card__cta-label', cta).textContent = verb;
-    cta.setAttribute('aria-label', `${verb} — الإصدار ${number}: ${exam.t}`);
+    cta.setAttribute('aria-label', `${verb} — ${noun().def} ${number}: ${exam.t}`);
   }
 }
 
@@ -546,6 +654,7 @@ function buildCard(exam) {
   node.dataset.n = String(exam.n);
   node.id = `exam-${exam.n}`;
 
+  $('.card__number [data-field="unit"]', node).textContent = noun().sg;
   $('.card__number b', node).textContent = arabicNumber(exam.n);
   paintTitle($('.card__title', node), exam);
 
@@ -571,8 +680,8 @@ function buildCard(exam) {
   }
 
   const copy = $('.card__copy', node);
-  copy.setAttribute('aria-label', `نسخ رابط الإصدار ${arabicNumber(exam.n)}`);
-  copy.title = 'نسخ رابط الإصدار';
+  copy.setAttribute('aria-label', `نسخ رابط ${noun().def} ${arabicNumber(exam.n)}`);
+  copy.title = `نسخ رابط ${noun().def}`;
 
   paintCardKey(node, exam);
   paintCardState(node);
@@ -593,7 +702,7 @@ async function copyExamLink(exam) {
   if (!link || !isSafeUrl(link)) return;
   try {
     await navigator.clipboard.writeText(link);
-    toast('نُسخ رابط الإصدار');
+    toast(`نُسخ رابط ${noun().def}`);
   } catch {
     window.prompt('انسخ الرابط:', link);
   }
@@ -615,9 +724,8 @@ function appendBatch() {
   const remaining = state.results.length - state.shown;
   el.loadMore.hidden = remaining <= 0;
   if (remaining > 0) {
-    el.loadMoreMeta.textContent = `عُرض ${arabicNumber(state.shown)} من ${countPhrase(
+    el.loadMoreMeta.textContent = `عُرض ${arabicNumber(state.shown)} من ${countItems(
       state.results.length,
-      'exam',
     )}`;
   }
 }
@@ -627,8 +735,8 @@ function renderCount() {
   const n = state.results.length;
   const text =
     n === total
-      ? countPhrase(n, 'exam')
-      : `${arabicNumber(n)} من ${countPhrase(total, 'exam')}`;
+      ? countItems(n)
+      : `${arabicNumber(n)} من ${countItems(total)}`;
   el.count.innerHTML = '';
   el.count.append(Object.assign(document.createElement('b'), { textContent: text }));
   el.countLive.textContent = n === 0 ? 'لا توجد نتائج' : `${text} في النتائج`;
@@ -639,7 +747,7 @@ function renderActiveFilters() {
   if (state.q.trim()) tags.push({ key: 'q', label: `بحث: ${state.q.trim()}` });
   if (state.range !== 'all') {
     const r = parseRange(state.range);
-    tags.push({ key: 'range', label: 'الإصدارات', range: r });
+    tags.push({ key: 'range', label: noun().plDef, range: r });
   }
   if (state.key === 'only') tags.push({ key: 'key', label: keyLabel() });
   if (state.status !== 'all') {
@@ -688,23 +796,27 @@ function renderActiveFilters() {
 }
 
 /** Empty views that are about the student's own lists get their own guidance. */
-const STATUS_EMPTY = {
-  fav: {
-    icon: 'i-heart',
-    title: 'لا توجد إصدارات في المفضلة',
-    lead: 'اضغط على أيقونة القلب في أي بطاقة لحفظ الإصدار هنا والرجوع إليه بسرعة.',
-  },
-  done: {
-    icon: 'i-check',
-    title: 'لم تُنجز أي إصدار بعد',
-    lead: 'اضغط «ابدأ الاختبار» في أي إصدار، وسيُسجَّل هنا كمُنجز تلقائيًا.',
-  },
-  todo: {
-    icon: 'i-check',
-    title: 'أنجزت جميع الإصدارات',
-    lead: 'أحسنت. يمكنك مراجعة أي إصدار من تبويب «الكل» في أي وقت.',
-  },
-};
+function statusEmpty(status) {
+  const { sg, def, pl, plDef } = noun();
+  const copy = {
+    fav: {
+      icon: 'i-heart',
+      title: `لا توجد ${pl} في المفضلة`,
+      lead: `اضغط على أيقونة القلب في أي بطاقة لحفظ ${def} هنا والرجوع إليه بسرعة.`,
+    },
+    done: {
+      icon: 'i-check',
+      title: `لم تُنجز أي ${sg} بعد`,
+      lead: `اضغط «ابدأ الاختبار» في أي ${sg}، وسيُسجَّل هنا كمُنجز تلقائيًا.`,
+    },
+    todo: {
+      icon: 'i-check',
+      title: `أنجزت جميع ${plDef}`,
+      lead: `أحسنت. يمكنك مراجعة أي ${sg} من تبويب «الكل» في أي وقت.`,
+    },
+  };
+  return copy[status] ?? null;
+}
 
 function renderEmptyState() {
   const hasResults = state.results.length > 0;
@@ -715,7 +827,7 @@ function renderEmptyState() {
 
   const term = state.q.trim();
   const keyOnly = state.key === 'only';
-  const listOnly = !term && !keyOnly && state.range === 'all' && STATUS_EMPTY[state.status];
+  const listOnly = !term && !keyOnly && state.range === 'all' && statusEmpty(state.status);
 
   // The shortlist is spread unevenly across the numbering — some ranges hold
   // none of it at all — so an empty result under it is an ordinary outcome,
@@ -723,17 +835,19 @@ function renderEmptyState() {
   const keyEmpty = !term &&
     keyOnly && {
       icon: 'i-target',
-      title: `لا توجد إصدارات من ${keyLabel()} هنا`,
+      title: `لا توجد ${noun().pl} من ${keyLabel()} هنا`,
       lead:
         state.range !== 'all'
-          ? `لا يضم هذا النطاق أي إصدار من ${keyLabel()}. جرّب نطاقًا آخر، أو اعرض كل الإصدارات.`
-          : `لا يوجد إصدار من ${keyLabel()} ضمن عوامل التصفية الحالية.`,
+          ? `لا يضم هذا النطاق أي ${noun().sg} من ${keyLabel()}. جرّب نطاقًا آخر، أو اعرض كل ${noun().plDef}.`
+          : `لا يوجد ${noun().sg} من ${keyLabel()} ضمن عوامل التصفية الحالية.`,
     };
 
   const copy = keyEmpty || listOnly || {
     icon: 'i-inbox',
     title: 'لا توجد نتائج',
-    lead: term ? 'لم نجد إصدارًا مطابقًا لـ' : 'لا توجد إصدارات ضمن عوامل التصفية الحالية.',
+    lead: term
+      ? `لم نجد ${noun().acc} مطابقًا لـ`
+      : `لا توجد ${noun().pl} ضمن عوامل التصفية الحالية.`,
   };
   el.emptyIcon.setAttribute('href', `#${copy.icon}`);
   el.emptyTitle.textContent = copy.title;
@@ -748,7 +862,7 @@ function renderEmptyState() {
     const release = document.createElement('button');
     release.type = 'button';
     release.className = 'chip';
-    release.textContent = 'اعرض كل الإصدارات';
+    release.textContent = `اعرض كل ${noun().plDef}`;
     release.addEventListener('click', () => {
       state.key = 'all';
       applyChange();
@@ -767,7 +881,7 @@ function renderEmptyState() {
       el.suggestions.append(
         Object.assign(document.createElement('span'), {
           className: 'active-filters__label',
-          textContent: 'أقرب الإصدارات:',
+          textContent: `أقرب ${noun().plDef}:`,
         }),
       );
       for (const { e } of nearest) {
@@ -795,7 +909,7 @@ function renderEmptyState() {
 function renderChips() {
   const keyOnly = state.key === 'only';
   const allLabel = $('.chip__label', el.rangeChips);
-  if (allLabel) allLabel.textContent = keyOnly ? 'كل الأرقام' : 'كل الإصدارات';
+  if (allLabel) allLabel.textContent = keyOnly ? 'كل الأرقام' : `كل ${noun().plDef}`;
 
   $$('[data-range]', el.rangeChips).forEach((chip) => {
     chip.setAttribute('aria-pressed', String(chip.dataset.range === state.range));
@@ -814,9 +928,8 @@ function renderChips() {
     if (range) {
       chip.setAttribute(
         'aria-label',
-        `الإصدارات من ${arabicNumber(range.from)} إلى ${arabicNumber(range.to)} (${countPhrase(
+        `${noun().plDef} من ${arabicNumber(range.from)} إلى ${arabicNumber(range.to)} (${countItems(
           count,
-          'exam',
         )})`,
       );
     }
@@ -832,7 +945,7 @@ function renderKeyControls() {
   el.keyToggle.setAttribute('aria-pressed', String(on));
   el.keyToggle.setAttribute(
     'aria-label',
-    on ? `إلغاء تصفية ${label} وعرض كل الإصدارات` : `اعرض ${label} وحدها`,
+    on ? `إلغاء تصفية ${label} وعرض كل ${noun().plDef}` : `اعرض ${label} وحدها`,
   );
 
   el.tileKey.setAttribute('aria-pressed', String(on));
@@ -842,7 +955,7 @@ function renderKeyControls() {
   // sentence twice on one screen. This line explains the control instead, and
   // has to read correctly whichever way the switch is currently set.
   el.keyHint.textContent = on
-    ? 'معروضة وحدها الآن — اضغط المفتاح للرجوع إلى كل الإصدارات.'
+    ? `معروضة وحدها الآن — اضغط المفتاح للرجوع إلى كل ${noun().plDef}.`
     : 'اضغط لعرضها وحدها — يعمل مع البحث والحالة والمجموعات معًا.';
 }
 
@@ -979,9 +1092,9 @@ function pointTileAt(tile, exam, label) {
 }
 
 const RESUME_LABELS = {
-  start: (n) => `ابدأ بالإصدار ${n}`,
-  continue: (n) => `أكمل الإصدار ${n}`,
-  next: (n) => `تابع بالإصدار ${n}`,
+  start: (n) => `ابدأ ب${noun().def} ${n}`,
+  continue: (n) => `أكمل ${noun().def} ${n}`,
+  next: (n) => `تابع ب${noun().def} ${n}`,
 };
 
 function refreshQuickAccess() {
@@ -990,10 +1103,7 @@ function refreshQuickAccess() {
 
   if (store.isAvailable) {
     el.progress.hidden = stats.done === 0;
-    el.progressLabel.textContent = `أنجزتَ ${arabicNumber(stats.done)} من ${countPhrase(
-      stats.total,
-      'exam',
-    )}`;
+    el.progressLabel.textContent = `أنجزتَ ${arabicNumber(stats.done)} من ${countItems(stats.total)}`;
     paintTrack(
       { bar: el.progressBar, fill: el.progressFill, pct: el.progressPct },
       stats.done,
@@ -1025,31 +1135,33 @@ function refreshQuickAccess() {
     pointTileAt(el.tileResume, resume.exam, label);
   } else {
     const review = randomTarget();
-    el.tileResumeLabel.textContent = 'أنجزت جميع الإصدارات';
-    el.tileResumeMeta.textContent = 'راجِع إصدارًا عشوائيًا';
-    pointTileAt(el.tileResume, review, 'مراجعة إصدار عشوائي');
+    el.tileResumeLabel.textContent = `أنجزت جميع ${noun().plDef}`;
+    el.tileResumeMeta.textContent = `راجِع ${noun().acc} عشوائيًا`;
+    pointTileAt(el.tileResume, review, `مراجعة ${noun().sg} عشوائي`);
   }
 
-  if (stats.todo === 0) el.tileTodoMeta.textContent = 'أنجزت جميع الإصدارات';
-  else if (stats.done === 0) el.tileTodoMeta.textContent = 'كل إصدار تبدؤه يُسجَّل كمُنجز';
-  else el.tileTodoMeta.textContent = `بقي لك ${countPhrase(stats.todo, 'exam')}`;
+  if (stats.todo === 0) el.tileTodoMeta.textContent = `أنجزت جميع ${noun().plDef}`;
+  else if (stats.done === 0) el.tileTodoMeta.textContent = `كل ${noun().sg} تبدؤه يُسجَّل كمُنجز`;
+  else el.tileTodoMeta.textContent = `بقي لك ${countItems(stats.todo)}`;
 
   el.tileFavMeta.textContent = stats.fav
-    ? `${countPhrase(stats.fav, 'exam')} في المفضلة`
-    : 'احفظ أي إصدار بالضغط على القلب';
+    ? `${countItems(stats.fav)} في المفضلة`
+    : `احفظ أي ${noun().sg} بالضغط على القلب`;
 
   el.tileRandomMeta.textContent =
-    stats.done > 0 && stats.todo > 0 ? 'من الإصدارات التي لم تُنجزها' : 'يفتح فورًا في تبويب جديد';
-  pointTileAt(el.tileRandom, randomTarget(), 'إصدار عشوائي');
+    stats.done > 0 && stats.todo > 0
+      ? `من ${noun().plDef} التي لم تُنجزها`
+      : 'يفتح فورًا في تبويب جديد';
+  pointTileAt(el.tileRandom, randomTarget(), `${noun().sg} عشوائي`);
 
   if (stats.keyTotal) {
     // Before any progress, say what the set is; after some, say what is left.
     el.tileKeyMeta.textContent =
       stats.keyDone === 0
-        ? state.priority?.blurb || `${countPhrase(stats.keyTotal, 'exam')} ابدأ بها`
+        ? state.priority?.blurb || `${countItems(stats.keyTotal)} ابدأ بها`
         : stats.keyTodo === 0
-          ? `أنجزتها كلها — ${countPhrase(stats.keyTotal, 'exam')}`
-          : `بقي لك ${countPhrase(stats.keyTodo, 'exam')} من ${arabicNumber(stats.keyTotal)}`;
+          ? `أنجزتها كلها — ${countItems(stats.keyTotal)}`
+          : `بقي لك ${countItems(stats.keyTodo)} من ${arabicNumber(stats.keyTotal)}`;
   }
 }
 
@@ -1058,6 +1170,7 @@ function refreshProgress() {
   refreshQuickAccess();
   countStatuses();
   renderStatusCounts();
+  renderCollectionTabs();
 }
 
 function setDone(n, on, { announce = true } = {}) {
@@ -1065,7 +1178,8 @@ function setDone(n, on, { announce = true } = {}) {
   syncCard(n);
   refreshProgress();
   if (announce) {
-    toast(on ? `سُجِّل الإصدار ${arabicNumber(n)} كمُنجز` : `أُلغي تحديد الإصدار ${arabicNumber(n)}`);
+    const { def } = noun();
+    toast(on ? `سُجِّل ${def} ${arabicNumber(n)} كمُنجز` : `أُلغي تحديد ${def} ${arabicNumber(n)}`);
   }
 }
 
@@ -1098,11 +1212,12 @@ function examOpened(n, { random = false } = {}) {
     refreshProgress();
 
     const number = arabicNumber(n);
+    const { def } = noun();
     if (!newlyDone) {
-      if (random) toast(`فُتح الإصدار ${number}: ${exam.t}`);
+      if (random) toast(`فُتح ${def} ${number}: ${exam.t}`);
       return;
     }
-    toast(random ? `فُتح الإصدار ${number} وسُجِّل كمُنجز` : `سُجِّل الإصدار ${number} كمُنجز`, {
+    toast(random ? `فُتح ${def} ${number} وسُجِّل كمُنجز` : `سُجِّل ${def} ${number} كمُنجز`, {
       duration: 6000,
       action: { label: 'تراجع', onClick: () => setDone(n, false) },
     });
@@ -1382,10 +1497,23 @@ function bindEvents() {
     }
   });
 
+  // A plain click switches in place; a modified or middle click is left to
+  // the browser, which opens the card's real ?c= link in a new tab.
+  el.collectionLinks.forEach((link) => {
+    link.addEventListener('click', (event) => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      if (!state.loaded.has(link.dataset.collection)) return;
+      event.preventDefault();
+      switchCollection(link.dataset.collection);
+    });
+  });
+
   window.addEventListener('popstate', () => {
+    const before = state.col;
     readStateFromUrl();
     el.search.value = state.q;
     el.clear.hidden = !state.q;
+    if (state.col !== before) refreshQuickAccess();
     compute();
     render();
   });
@@ -1406,16 +1534,23 @@ function bindEvents() {
   window.addEventListener('pageshow', (event) => {
     if (!event.persisted) return;
     // Restored from the back/forward cache: storage events were missed.
-    store.reload();
+    for (const entry of state.loaded.values()) entry.store.reload();
     repaintCards();
     refreshProgress();
   });
 
-  // Another tab of the portal changed progress.
-  store.subscribe(() => {
-    repaintCards();
-    refreshProgress();
-  });
+  // Another tab of the portal changed progress — in the collection on screen,
+  // or in one whose card only needs its figure refreshed.
+  for (const entry of state.loaded.values()) {
+    entry.store.subscribe(() => {
+      if (entry !== state.col) {
+        renderCollectionTabs();
+        return;
+      }
+      repaintCards();
+      refreshProgress();
+    });
+  }
 
   // Infinite scroll, with the button as the accessible fallback.
   if ('IntersectionObserver' in window) {
@@ -1447,47 +1582,128 @@ function resetAll() {
 }
 
 /* -------------------------------------------------------------------------- */
+/* Collections                                                                 */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Make `id` the collection everything else works on: its records, its
+ * progress store, its range chips, its shortlist (if any) and its words.
+ * Rendering the list is left to the caller, which usually also resets filters.
+ */
+function useCollection(id) {
+  const entry = state.loaded.get(id) ?? state.loaded.get(DEFAULT_COLLECTION);
+  // A pending "تراجع" belongs to the collection it was raised in; it must not
+  // be able to act on another one's progress after the switch.
+  if (state.col && state.col !== entry) hideToast();
+
+  state.col = entry;
+  state.c = entry.config.id;
+  state.data = entry.data;
+  state.ordered = entry.ordered;
+  state.byNumber = entry.byNumber;
+  store = entry.store;
+
+  renderPriorityMeta(entry.data.meta.priority);
+  renderRangeChips(entry.data.meta);
+  paintCollectionCopy(entry.config);
+  renderCollectionTabs();
+}
+
+/** A press on a collection card: a fresh view of that collection. */
+function switchCollection(id) {
+  if (id === state.c) return;
+  Object.assign(state, DEFAULTS);
+  el.search.value = '';
+  el.clear.hidden = true;
+  if (!el.sheet.hidden) closeSheet();
+
+  useCollection(id);
+  refreshQuickAccess();
+  compute();
+  render();
+  // Its own history entry, so the back button returns to the previous one.
+  history.pushState(null, '', urlForState());
+}
+
+/** Each card's figure, its share already done, and which one is open. */
+function renderCollectionTabs() {
+  if (!el.collections) return;
+  for (const link of el.collectionLinks) {
+    const entry = state.loaded.get(link.dataset.collection);
+    const item = link.closest('li') ?? link;
+    item.hidden = !entry;
+    if (!entry) continue;
+
+    if (entry === state.col) link.setAttribute('aria-current', 'page');
+    else link.removeAttribute('aria-current');
+
+    const total = entry.ordered.length;
+    let done = 0;
+    for (const exam of entry.ordered) if (entry.store.isDone(exam.n)) done += 1;
+
+    $('.collection__count', link).textContent = arabicNumber(total);
+    link.classList.toggle('collection--started', done > 0);
+    const fill = $('.collection__fill', link);
+    if (fill) fill.style.width = done ? `max(${((done / total) * 100).toFixed(2)}%, 6px)` : '0';
+
+    const progress =
+      done === 0 ? '' : done >= total ? '، أنجزتها كلها' : `، أنجزت ${arabicNumber(done)} منها`;
+    link.setAttribute(
+      'aria-label',
+      `${entry.config.name}: ${countPhrase(total, entry.config.unit)}${progress}`,
+    );
+  }
+  // One collection on its own is not a choice.
+  el.collections.hidden = state.loaded.size < 2;
+}
+
+/**
+ * Mark the card a shared `?c=` link asks for before any data has arrived, so
+ * the default one never flashes as selected and the search box already names
+ * the right collection.
+ */
+function paintRequestedCollection() {
+  const requested = new URLSearchParams(location.search).get('c');
+  const config = COLLECTIONS.find((c) => c.id === requested);
+  if (!config) return;
+  for (const link of el.collectionLinks) {
+    if (link.dataset.collection === config.id) link.setAttribute('aria-current', 'page');
+    else link.removeAttribute('aria-current');
+  }
+  paintCollectionCopy(config);
+}
+
+/* -------------------------------------------------------------------------- */
 /* Boot                                                                        */
 /* -------------------------------------------------------------------------- */
 
 /**
- * Everything the shortlist adds to the page, set up once from the dataset.
- * A build without a shortlist leaves all of it hidden — the switch, the tile,
- * the sort option and the second progress track — rather than showing an
- * empty promise.
+ * Everything the shortlist adds to the list: the switch, the tile and the sort
+ * option. A collection without one hides all of it rather than showing an
+ * empty promise — and switching collections can turn it off again.
  */
 function renderPriorityMeta(priority) {
   state.priority = priority || null;
-  if (!state.priority) return;
+  const on = Boolean(state.priority);
+  el.keyBar.hidden = !on;
+  el.tileKey.hidden = !on;
+  el.sortKeyOption.hidden = !on;
+  if (!on) return;
 
   const label = keyLabel();
   const count = arabicNumber(state.priority.count);
 
-  el.statPriority.forEach((n) => {
-    n.textContent = count;
-    // The hero ships the figure hidden; a build with a shortlist turns it on.
-    n.closest('li')?.removeAttribute('hidden');
-  });
-  document.querySelectorAll('[data-unit="priority"]').forEach((n) => {
-    n.textContent = label;
-  });
-
   el.keyToggleLabel.textContent = label;
   el.keyToggleCount.textContent = count;
-  el.keyBar.hidden = false;
-
   el.tileKeyLabel.textContent = label;
-  el.tileKey.hidden = false;
-
   el.sortKeyOption.textContent = `${label} أولًا`;
-  el.sortKeyOption.hidden = false;
 }
 
-function renderMeta(meta) {
+/** The hero's figures are the 48 versions', whichever collection is open. */
+function renderHeroStats(meta) {
   const fmt = (n) => (typeof n === 'number' ? arabicNumber(n) : '—');
   el.statTotal.forEach((n) => (n.textContent = fmt(meta.total)));
   el.statQuestions.forEach((n) => (n.textContent = fmt(meta.totalQuestions)));
-  renderPriorityMeta(meta.priority);
 
   // Unit labels must agree with the number they sit beside.
   document.querySelectorAll('[data-unit="exam"]').forEach((n) => {
@@ -1496,15 +1712,31 @@ function renderMeta(meta) {
   document.querySelectorAll('[data-unit="question"]').forEach((n) => {
     n.textContent = unitNoun(meta.totalQuestions ?? 0, 'question');
   });
+
+  // The page changed when any collection did; the build records the latest.
+  const updated = meta.siteUpdated ?? meta.generated;
   el.statUpdated.forEach((n) => {
-    if (!meta.generated) {
+    if (!updated) {
       n.closest('li')?.remove();
       return;
     }
-    n.textContent = formatDate(meta.generated);
-    n.setAttribute('datetime', meta.generated);
+    n.textContent = formatDate(updated);
+    n.setAttribute('datetime', updated);
   });
 
+  if (meta.priority) {
+    el.statPriority.forEach((n) => {
+      n.textContent = arabicNumber(meta.priority.count);
+      // The hero ships the figure hidden; a build with a shortlist turns it on.
+      n.closest('li')?.removeAttribute('hidden');
+    });
+    document.querySelectorAll('[data-unit="priority"]').forEach((n) => {
+      n.textContent = meta.priority.label || 'الأكثر تكرارًا';
+    });
+  }
+}
+
+function renderRangeChips(meta) {
   el.rangeChips.replaceChildren();
   const allChip = document.createElement('button');
   allChip.type = 'button';
@@ -1513,7 +1745,7 @@ function renderMeta(meta) {
   allChip.append(
     Object.assign(document.createElement('span'), {
       className: 'chip__label',
-      textContent: 'كل الإصدارات',
+      textContent: `كل ${noun().plDef}`,
     }),
   );
   allChip.append(
@@ -1532,9 +1764,8 @@ function renderMeta(meta) {
     chip.append(rangeElement(range.from, range.to));
     chip.setAttribute(
       'aria-label',
-      `الإصدارات من ${arabicNumber(range.from)} إلى ${arabicNumber(range.to)} (${countPhrase(
+      `${noun().plDef} من ${arabicNumber(range.from)} إلى ${arabicNumber(range.to)} (${countItems(
         range.count,
-        'exam',
       )})`,
     );
     chip.append(
@@ -1554,6 +1785,7 @@ function showError() {
   el.empty.hidden = true;
   el.loadMore.hidden = true;
   document.getElementById('quickAccess')?.setAttribute('hidden', '');
+  el.collections?.setAttribute('hidden', '');
 
   // Without data these controls promise something the page cannot deliver.
   document.getElementById('heroStats')?.setAttribute('hidden', '');
@@ -1566,41 +1798,62 @@ function showError() {
   el.count.textContent = '';
 }
 
+/** Fetch and vet one collection's dataset. Throws when nothing usable is left. */
+async function loadCollection(config) {
+  const response = await fetch(config.url, { cache: 'no-cache' });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const data = await response.json();
+  if (!data || !Array.isArray(data.exams) || data.exams.length === 0) {
+    throw new Error('empty dataset');
+  }
+
+  // Drop anything that cannot produce a safe link before it reaches the UI.
+  data.exams = data.exams.filter((e) => {
+    const url = e && examUrl(e);
+    return Boolean(e && Number.isInteger(e.n) && e.t && url && isSafeUrl(url));
+  });
+  if (!data.exams.length) throw new Error('no usable records');
+
+  data.meta = data.meta || {};
+  data.meta.total = data.exams.length;
+
+  // Records were just dropped for unusable links; the shortlist count has to
+  // follow, or the page would advertise forms it cannot open.
+  if (data.meta.priority) {
+    const flagged = data.exams.filter((e) => e.p).length;
+    data.meta.priority = flagged ? { ...data.meta.priority, count: flagged } : null;
+  }
+
+  const ordered = data.exams.slice().sort((a, b) => a.n - b.n);
+  return {
+    config,
+    data,
+    ordered,
+    byNumber: new Map(ordered.map((e) => [e.n, e])),
+    store: config.store ?? createStore(config.storeKey),
+  };
+}
+
 async function boot() {
   document.documentElement.classList.add('has-js');
+  paintRequestedCollection();
+
+  // All three at once. Only the versions are required: a collection that
+  // fails to load just loses its card, and the page carries on without it.
+  const settled = await Promise.allSettled(COLLECTIONS.map(loadCollection));
+  settled.forEach((result, index) => {
+    const { id } = COLLECTIONS[index];
+    if (result.status === 'fulfilled') state.loaded.set(id, result.value);
+    else console.error(`[exams] failed to load the "${id}" collection:`, result.reason);
+  });
 
   try {
-    const response = await fetch(DATA_URL, { cache: 'no-cache' });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-    if (!data || !Array.isArray(data.exams) || data.exams.length === 0) {
-      throw new Error('empty dataset');
-    }
+    const primary = state.loaded.get(DEFAULT_COLLECTION);
+    if (!primary) throw new Error('the versions dataset did not load');
 
-    // Drop anything that cannot produce a safe link before it reaches the UI.
-    data.exams = data.exams.filter((e) => {
-      const url = e && examUrl(e);
-      return Boolean(e && Number.isInteger(e.n) && e.t && url && isSafeUrl(url));
-    });
-    if (!data.exams.length) throw new Error('no usable records');
-
-    data.meta = data.meta || {};
-    data.meta.total = data.exams.length;
-
-    // Records were just dropped for unusable links; the shortlist count has to
-    // follow, or the page would advertise forms it cannot open.
-    if (data.meta.priority) {
-      const flagged = data.exams.filter((e) => e.p).length;
-      data.meta.priority = flagged ? { ...data.meta.priority, count: flagged } : null;
-    }
-
-    state.data = data;
-    state.ordered = data.exams.slice().sort((a, b) => a.n - b.n);
-    state.byNumber = new Map(state.ordered.map((e) => [e.n, e]));
-
-    renderMeta(data.meta);
-    bindEvents();
+    renderHeroStats(primary.data.meta);
     readStateFromUrl();
+    bindEvents();
     el.search.value = state.q;
     el.clear.hidden = !state.q;
     refreshQuickAccess();

@@ -16,7 +16,7 @@
     "flagged": 0,
     "unknown": []
   },
-  "outputBytes": 11200,
+  "outputBytes": 11227,
   "ranges": [
     {
       "from": 1,
@@ -42,6 +42,60 @@
       "from": 41,
       "to": 48,
       "count": 8
+    }
+  ],
+  "collections": [
+    {
+      "id": "tasis",
+      "name": "نماذج التأسيس",
+      "sourceFile": "data/source/نماذج التأسيس.json",
+      "output": "assets/data/tasis.json",
+      "sourceRecords": 20,
+      "published": 19,
+      "excluded": 1,
+      "issues": [
+        {
+          "where": "#3 (النموذج 4)",
+          "reason": "missing-url",
+          "value": "النسبة والتناسب"
+        }
+      ],
+      "outputBytes": 3190,
+      "ranges": [
+        {
+          "from": 1,
+          "to": 10,
+          "count": 9
+        },
+        {
+          "from": 11,
+          "to": 20,
+          "count": 10
+        }
+      ]
+    },
+    {
+      "id": "namazij",
+      "name": "نماذج التجميعات الحديثة",
+      "sourceFile": "data/source/نماذج التجميعات الحديثة.json",
+      "output": "assets/data/namazij.json",
+      "sourceRecords": 20,
+      "published": 20,
+      "excluded": 0,
+      "issues": [],
+      "outputBytes": 3133,
+      "ranges": [
+        {
+          "from": 1,
+          "to": 10,
+          "count": 10
+        },
+        {
+          "from": 11,
+          "to": 20,
+          "count": 10
+        }
+      ]
     }
   ]
 }

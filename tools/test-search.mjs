@@ -122,6 +122,41 @@ console.log('\nhighlighting maps back to the original title');
   assert('number queries do not highlight', ranges.length === 0);
 }
 
+// The other collections are smaller and carry no question counts, so they get
+// the structural checks and a lookup each, read from whatever the build wrote.
+const EXTRA_FILES = ['tasis.json', 'namazij.json'];
+const linkOf = (e) =>
+  e.u ||
+  (e.f ? `https://docs.google.com/forms/d/e/${e.f}/viewform` : null) ||
+  (e.s ? `https://forms.gle/${e.s}` : null);
+const allLinks = exams.map(linkOf);
+
+for (const file of EXTRA_FILES) {
+  const full = path.join(ROOT, 'assets/data', file);
+  if (!fs.existsSync(full)) {
+    console.log(`\ncollection ${file}: not built (no export) — skipped`);
+    continue;
+  }
+  const { exams: set, meta: setMeta } = JSON.parse(fs.readFileSync(full, 'utf8'));
+  const find = (text) => searchExams(set, parseQuery(text)).results;
+  console.log(`\ncollection ${file}`);
+  assert('has forms', set.length > 0);
+  assert('meta.total matches', setMeta.total === set.length);
+  assert('names itself', typeof setMeta.id === 'string' && typeof setMeta.name === 'string');
+  assert('every form has a number', set.every((e) => Number.isInteger(e.n) && e.n > 0));
+  assert('numbers are unique', new Set(set.map((e) => e.n)).size === set.length);
+  assert('every form has a title', set.every((e) => typeof e.t === 'string' && e.t.trim()));
+  assert('every form resolves to an https link', set.every((e) => linkOf(e)?.startsWith('https://')));
+  assert('links are unique', new Set(set.map(linkOf)).size === set.length);
+  assert('the brand is not repeated inside every title', !set.every((e) => e.t.includes('المتميز')));
+  assert('a number finds its form', find(String(set[set.length - 1].n))[0]?.n === set[set.length - 1].n);
+  assert('an exact title finds its form', find(set[0].t)[0]?.n === set[0].n);
+  allLinks.push(...set.map(linkOf));
+}
+
+console.log('\nacross collections');
+assert('no form is published in two collections', new Set(allLinks).size === allLinks.length);
+
 console.log('\nperformance');
 {
   const queries = ['الإصدار', 'ا', 'الحادي عشر', '11', 'zzz', 'الاصدار الاول'];
