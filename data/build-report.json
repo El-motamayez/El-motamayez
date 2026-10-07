@@ -51,21 +51,15 @@
       "sourceFile": "data/source/نماذج التأسيس.json",
       "output": "assets/data/tasis.json",
       "sourceRecords": 20,
-      "published": 19,
-      "excluded": 1,
-      "issues": [
-        {
-          "where": "#3 (النموذج 4)",
-          "reason": "missing-url",
-          "value": "النسبة والتناسب"
-        }
-      ],
-      "outputBytes": 3190,
+      "published": 20,
+      "excluded": 0,
+      "issues": [],
+      "outputBytes": 3315,
       "ranges": [
         {
           "from": 1,
           "to": 10,
-          "count": 9
+          "count": 10
         },
         {
           "from": 11,
